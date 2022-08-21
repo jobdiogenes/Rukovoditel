@@ -158,7 +158,7 @@
 <![endif]-->
 <script src="../template/plugins/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
 <script src="../template/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="../template/plugins/bootstrap-hover-dropdown/twitter-bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
+<script src="../template/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
 <script src="../template/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
 <script src="../template/plugins/jquery.blockui.min.js" type="text/javascript"></script>
 <script src="../template/plugins/jquery.cokie.min.js" type="text/javascript"></script>
