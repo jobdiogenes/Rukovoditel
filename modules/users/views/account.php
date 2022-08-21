@@ -6,7 +6,7 @@
   		<i class="fa fa-reorder"></i><?php echo TEXT_DETAILS ?>
   	</div>
   </div>
-  <div class="portlet-body form">
+  <div class="portlet-body form paretn-items-form">
 
 
 <?php 
@@ -60,21 +60,14 @@
   if($count_tabs>1)
   {
     $count = 0;
-    $html = '<ul class="nav nav-tabs" id="form_tabs">';
-    $tabs_query = db_fetch_all('app_forms_tabs',"entities_id='" . db_input($current_entity_id) . "' order by  sort_order, name");
-    while($tabs = db_fetch_array($tabs_query))
-    {
-      $html .= '<li ' . ($count==0 ? 'class="active"':'') . '><a href="#form_tab_' . $tabs['id'] . '">' . $tabs['name'] . '</a></li>';
-      $count++;
-    }
-    $html .= '</ul>';
     
-    
+    $html = '<ul class="nav nav-tabs" id="form_tabs"> ' . forms_tabs::render_tabs_nav($current_entity_id) . '</ul>';
+        
     $html .= '<div class="tab-content">';
     $count = 0;
-    
-    $tabs_query = db_fetch_all('app_forms_tabs',"entities_id='" . db_input($current_entity_id) . "' order by  sort_order, name");
-    while($tabs = db_fetch_array($tabs_query))
+        
+    $tabs_tree = forms_tabs::get_tree($current_entity_id);
+    foreach($tabs_tree as $tabs)
     {
               
       $html .= '
@@ -82,7 +75,7 @@
           ' . (strlen($tabs['description']) ? '<p>' . $tabs['description'] . '</p>' : '');
       
       $count_fields = 0;
-      $fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.type not in (" . fields_types::get_reserverd_types_list(). "," . $excluded_fileds_types . ") and  f.entities_id='" . db_input($current_entity_id) . "' and f.forms_tabs_id=t.id and f.forms_tabs_id='" . db_input($tabs['id']) . "' order by t.sort_order, t.name, f.sort_order, f.name");
+      $fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.type not in (" . fields_types::get_type_list_excluded_in_form(). "," . $excluded_fileds_types . ") and  f.entities_id='" . db_input($current_entity_id) . "' and f.forms_tabs_id=t.id and f.forms_tabs_id='" . db_input($tabs['id']) . "' and length(f.forms_rows_position)=0 order by t.sort_order, t.name, f.sort_order, f.name");
       while($v = db_fetch_array($fields_query))
       {
       	if($v['type']=='fieldtype_user_language' and count(app_get_languages_choices())==1)
@@ -130,19 +123,33 @@
       	}
       	else
       	{
-	        $html .= '
-	          <div class="form-group form-group-' . $v['id'] . '">
-	          	<label class="col-md-3 control-label" for="fields_' . $v['id'] . '">' . fields_types::get_option($v['type'],'name',$v['name']) . '</label>
+            $v['is_required'] = (in_array($v['type'],array('fieldtype_user_firstname','fieldtype_user_lastname','fieldtype_user_username','fieldtype_user_email')) ?  1 : $v['is_required']);
+            
+	    $html .= '
+	        <div class="form-group form-group-' . $v['id'] . ' form-group-' . $v['type'] . '">
+	            <label class="col-md-3 control-label" for="fields_' . $v['id'] . '">' .
+                    ($v['is_required']==1 ? '<span class="required-label">*</span>':'') .
+	            ($v['tooltip_display_as']=='icon' ? tooltip_icon($v['tooltip']) :'') .
+                    fields_types::get_option($v['type'],'name',$v['name']) . '</label>
 	            <div class="col-md-9">	
-	          	  ' . fields_types::render($v['type'],$v,$obj,array('is_new_item'=>false)) 
-	                . tooltip_text($v['tooltip']) . '
+	          	' . fields_types::render($v['type'],$v,$obj,array('is_new_item'=>false,'parent_entity_item_id'=>$obj['parent_item_id'],'form'=>'item')) 
+	                . ($v['tooltip_display_as']!='icon' ? tooltip_text($v['tooltip']):'') . '
 	            </div>			
-	          </div>
+	         </div>
 	        '; 
       	}
       	
       	$count_fields++;
       }
+      
+      //handle rows
+      $forms_rows = new forms_rows($current_entity_id,$tabs['id']);
+      $forms_rows->fields_access_schema = $fields_access_schema;
+      $forms_rows->obj = $obj;
+      $forms_rows->is_new_item = $is_new_item;
+      $forms_rows->parent_entity_item_id = $obj['parent_item_id'];
+      $forms_rows->excluded_fileds_types = $excluded_fileds_types;
+      $html .= $forms_rows->render();
       
       if($count==0)
       {
@@ -159,8 +166,12 @@
   }
   else
   {  
+      
+      $tabs_query = db_fetch_all('app_forms_tabs',"entities_id='" . db_input($current_entity_id) . "' order by  sort_order, name");
+      $tabs = db_fetch_array($tabs_query);
+      
   	$count_fields = 0;
-    $fields_query = db_query("select f.* from app_fields f where f.type not in (" . fields_types::get_reserverd_types_list(). "," . $excluded_fileds_types . ") and  f.entities_id='" . db_input($current_entity_id) . "' order by f.sort_order, f.name");
+    $fields_query = db_query("select f.* from app_fields f where f.type not in (" . fields_types::get_type_list_excluded_in_form(). "," . $excluded_fileds_types . ") and  f.entities_id='" . db_input($current_entity_id) . "' and length(f.forms_rows_position)=0 order by f.sort_order, f.name");
     while($v = db_fetch_array($fields_query))
     {  
     	if($v['type']=='fieldtype_user_language' and count(app_get_languages_choices())==1)
@@ -209,19 +220,34 @@
     	}
     	else
     	{
-	      $html .= '
+            $v['is_required'] = (in_array($v['type'],array('fieldtype_user_firstname','fieldtype_user_lastname','fieldtype_user_username','fieldtype_user_email')) ?  1 : $v['is_required']);
+            
+	    $html .= '
 	        <div class="form-group form-group-' . $v['id'] . '">
-	        	<label class="col-md-3 control-label" for="fields_' . $v['id'] . '">' . fields_types::get_option($v['type'],'name',$v['name']) . '</label>
-	          <div class="col-md-9">	
-	        	  ' . fields_types::render($v['type'],$v,$obj,array('is_new_item'=>false)) 
-	              . tooltip_text($v['tooltip']) . '
-	          </div>			
+                    <label class="col-md-3 control-label" for="fields_' . $v['id'] . '">' . 
+                    ($v['is_required']==1 ? '<span class="required-label">*</span>':'') .
+	            ($v['tooltip_display_as']=='icon' ? tooltip_icon($v['tooltip']) :'') .  
+                    fields_types::get_option($v['type'],'name',$v['name']) . '</label>
+                        
+                    <div class="col-md-9">	
+	        	' . fields_types::render($v['type'],$v,$obj,array('is_new_item'=>false,'parent_entity_item_id'=>$obj['parent_item_id'],'form'=>'item')) 
+                        . ($v['tooltip_display_as']!='icon' ? tooltip_text($v['tooltip']):'') . '
+                    </div>			
 	        </div>
 	      ';
     	}
     	
     	$count_fields++;
     }
+    
+    //handle rows
+    $forms_rows = new forms_rows($current_entity_id,$tabs['id']);
+    $forms_rows->fields_access_schema = $fields_access_schema;
+    $forms_rows->obj = $obj;
+    $forms_rows->is_new_item = $is_new_item;
+    $forms_rows->parent_entity_item_id = $obj['parent_item_id'];
+    $forms_rows->excluded_fileds_types = $excluded_fileds_types;
+    $html .= $forms_rows->render();
     
     $html .= $html_cfg;
   }
@@ -246,6 +272,11 @@
 		</div>
 	</div>
 </div>  
+
+<?php 
+//hidden user group value to handle fileds displays rules.
+	echo '<input type="hidden" value="' . $app_user['group_id']. '" id="field_6" class="field_6">';
+?>
   
 </form> 
 
@@ -258,7 +289,17 @@
 }
 </style>
 
+<?php 
+	if(is_ext_installed())
+	{
+		$smart_input = new smart_input($current_entity_id);
+		echo $smart_input->render();
+	}
+?>
+
 <?php require(component_path('items/items_form.js')); ?>  
+
+<?php echo forms_fields_rules::hidden_form_fields($current_entity_id) ?>
 
 <script>
   $(function() { 

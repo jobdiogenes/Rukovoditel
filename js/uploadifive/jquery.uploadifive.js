@@ -59,7 +59,8 @@ Released under the UploadiFive Standard License <http://www.uploadify.com/upload
                     'truncateLength'  : 0,                  // The length to truncate the file names to
                     'uploadLimit'     : 0,                  // The maximum number of files you can upload
                     'uploadScript'    : 'uploadifive.php',  // The path to the upload script
-                    'width'           : 100                 // The width of the button
+                    'width'           : 100,                 // The width of the button
+                    'fileTypeExtra'   : false,
 
                     /*
                     // Events
@@ -96,7 +97,7 @@ Released under the UploadiFive Standard License <http://www.uploadify.com/upload
                 }
 
                 // Create a template for a file input
-                $data.inputTemplate = $('<input type="file">')
+                $data.inputTemplate = $('<input type="file" data-msg-accept="&nbsp;">')
                 .css({
                     'font-size' : settings.height + 'px',
                     'opacity'   : 0,
@@ -121,6 +122,11 @@ Released under the UploadiFive Standard License <http://www.uploadify.com/upload
                     if (settings.fileType) {
                         input.attr('accept', settings.fileType);
                     }
+                    
+                    if (settings.fileTypeExtra) {
+                        input.attr('acceptExtra', settings.fileTypeExtra);
+                    }
+                    
                     // Set the onchange event for the input
                     input.bind('change', function() {
                         $data.queue.selected = 0;
@@ -289,10 +295,36 @@ Released under the UploadiFive Standard License <http://www.uploadify.com/upload
                     if (typeof settings.onAddQueueItem === 'function') {
                         settings.onAddQueueItem.call($this, file);
                     }
+                    
+                                                                                                    
+                    //check allowed file types
+                    var v = 0;
+                    
+                    //allow type by file extension if mime type is not detected
+                    if(file.type.length==0 && settings.fileTypeExtra.length>0)
+                    {                    	                    	                    	
+                    	if(settings.fileTypeExtra.split(',').indexOf(file.name.split('.').pop()))
+                    	{
+                    		v += 1;
+                    	}                    	
+                    }                    
+                    
+                    //check types by accept mime
+                    for (var n = 0; n < settings.fileType.length; n++) {
+                        if (file.type.indexOf(settings.fileType[n]) > -1) {
+                            v += 1;
+                        }
+                    }      
+                   
                     // Check the filesize
                     if (file.size > settings.fileSizeLimit && settings.fileSizeLimit != 0) {
                         $data.error('FILE_SIZE_LIMIT_EXCEEDED', file);
-                    } else {
+                    }
+                    else if(v < 1 && settings.fileType.length>0)
+                    {	
+                    	$data.error('FORBIDDEN_FILE_TYPE', file);
+                    } 
+                    else {
                         $data.queue.queued++;
                         $data.queue.count++;
                     }
@@ -304,8 +336,8 @@ Released under the UploadiFive Standard License <http://www.uploadify.com/upload
                     if (!delay) delay = 0;
                     var fadeTime = instant ? 0 : 500;
                     if (file.queueItem) {
-                        if (file.queueItem.find('.fileinfo').html() != ' - Completed') {
-                            file.queueItem.find('.fileinfo').html(' - Cancelled');
+                        if (file.queueItem.find('.fileinfo').html() != ' - '+i18n['TEXT_COMPLETED']) {
+                            file.queueItem.find('.fileinfo').html(' - '+i18n['TEXT_CANCELLED']);
                         }
                         file.queueItem.find('.progress-bar').width(0);
                         file.queueItem.delay(delay).fadeOut(fadeTime, function() {
@@ -518,10 +550,10 @@ Released under the UploadiFive Standard License <http://www.uploadify.com/upload
                                 errorMsg = '403 Forbidden';
                                 break;
                             case 'FORBIDDEN_FILE_TYPE':
-                                errorMsg = 'Forbidden File Type';
+                                errorMsg = i18n['TEXT_ERROR_FILE_EXTENSION'];
                                 break;
                             case 'FILE_SIZE_LIMIT_EXCEEDED':
-                                errorMsg = 'File Too Large';
+                                errorMsg = i18n['TEXT_FILE_TOO_LARGE'];
                                 break;
                             default:
                                 errorMsg = 'Unknown Error';
@@ -554,7 +586,7 @@ Released under the UploadiFive Standard License <http://www.uploadify.com/upload
                 $data.uploadComplete = function(e, file, uploadAll) {
                     if ($.inArray('onUploadComplete', settings.overrideEvents) < 0) {
                         file.queueItem.find('.progress-bar').css('width', '100%');
-                        file.queueItem.find('.fileinfo').html(' - Completed');
+                        file.queueItem.find('.fileinfo').html(' - '+i18n['TEXT_COMPLETED']);
                         file.queueItem.find('.progress').slideUp(250);
                         file.queueItem.addClass('complete');
                     }
@@ -597,13 +629,10 @@ Released under the UploadiFive Standard License <http://www.uploadify.com/upload
                     if (settings.buttonClass) $data.button.addClass(settings.buttonClass);
 
                     // Style the button wrapper
-                    $data.button.css({
-                        'height'      : settings.height,
-                        'line-height' : settings.height + 'px', 
+                    $data.button.css({                         
                         'overflow'    : 'hidden',
                         'position'    : 'relative',
-                        'text-align'  : 'center', 
-                        'width'       : settings.width
+                        'text-align'  : 'center',                         
                     });
 
                     // Insert the button above the file input

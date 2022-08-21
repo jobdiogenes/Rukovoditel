@@ -1,6 +1,6 @@
 <?php
 
-chdir('../');
+chdir(substr(__DIR__,0,-5));
 
 define('IS_CRON',true);
 
@@ -24,6 +24,8 @@ if(is_file($v = 'plugins/ext/languages/' . CFG_APP_LANGUAGE))
 {
 	require($v);
 }
+
+$app_users_cache  = users::get_cache();
 
 $app_user = array('id'=>0,'group_id'=>0,'language'=>CFG_APP_LANGUAGE);
 

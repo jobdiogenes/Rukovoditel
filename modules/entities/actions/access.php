@@ -16,26 +16,7 @@ switch($app_module_action)
             	$access_schema[] = $v;
             }
             
-            if((in_array('view_assigned',$access_schema) or in_array('action_with_assigned',$access_schema)) and !in_array('view',$access_schema))
-            {
-            	$access_schema[] = 'view';
-            }
-            
-            //check with selected
-            if(in_array('update_selected',$access_schema) and !in_array('update',$access_schema))
-            {	
-            	$access_schema[] = 'update';            	
-            }
-            		
-            if(in_array('delete_selected',$access_schema) and !in_array('delete',$access_schema))
-            {
-            	$access_schema[] = 'delete';            	
-            }
-            		            		
-            if(in_array('export_selected',$access_schema) and !in_array('export',$access_schema))
-            {
-            	$access_schema[] = 'export';
-            }   
+            $access_schema = access_groups::prepare_entities_access_schema($access_schema);  
                                     
                                                
             $sql_data = array('access_schema'=>implode(',',$access_schema));

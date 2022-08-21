@@ -32,6 +32,15 @@
           $alerts->add(TEXT_ERROR_PASSOWRD_LENGTH,'error');
         }
         
+        if(CFG_IS_STRONG_PASSWORD)
+        {
+            if(!preg_match('/[A-Z]/', $password) or !preg_match('/[0-9]/', $password) or !preg_match('/[^\w]/', $password))
+            {                
+                $error = true;
+                $alerts->add(TEXT_STRONG_PASSWORD_TIP, 'error');
+            }
+        }
+        
         
         
         if(!$error)

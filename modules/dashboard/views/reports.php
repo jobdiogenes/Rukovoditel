@@ -9,6 +9,9 @@
 
 app_reset_selected_items();
 
+//tabs
+echo reports_groups::render_dashboard_tabs();
+
 $has_reports_on_dashboard = false;
 
 $reports_groups_info = db_find('app_reports_groups',_get::int('id'));
@@ -45,6 +48,7 @@ if(strlen($reports_groups_info['reports_list']))
 		}
 		else
 		{
+                        $use_redirect_to = 'user_reports_groups' . $reports_groups_info['id'];
 			require(component_path('dashboard/render_standard_reports'));
 		}
 		

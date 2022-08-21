@@ -1,0 +1,37 @@
+Array
+(
+    [webhook] => Array
+        (
+            [action] => call.finish
+            [user_login] => kindrosker@gmail.com
+            [user_id] => 1
+            [account_id] => 63963
+            [account_name] => kindrosker
+        )
+
+    [event] => Array
+        (
+            [answer_time] => 1650981495
+            [direction] => 1
+            [db_call_id] => 1
+            [src_id] => 1
+            [event_type] => 4
+            [client_number] => +79787949111
+            [start_time] => 1650981483
+            [upload_time] => 1650981512
+            [recording] => https://kindrosker.moizvonki.ru/calls/recordings/KyQFYeXJnEOJrNRnwTrZNbvVeOMcYPkK.m4a/
+            [answered] => 1
+            [src_number] => 
+            [end_time] => 1650981505
+            [event_pbx_call_id] => 1.1650981483
+            [event_expiration] => 0
+            [event_grant] => 1
+            [user_group_id] => 1
+            [event_created] => 1650981512
+            [user_name] => Сергей
+            [client_name] => Любимая
+            [duration] => 10
+            [src_slot] => 0
+        )
+
+)

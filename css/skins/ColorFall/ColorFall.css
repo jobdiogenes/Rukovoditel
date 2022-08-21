@@ -77,9 +77,9 @@ Page header
 }
 .search-form .form-control,
 .page-sidebar-menu .form-control {
-  color: #4fb6f3;
-  background-color: #0e86ce;
-  border-color: #08486e;
+  color: #72585c;
+  background-color: #f8f1e3;
+  border-color: #585858;
 }
 .search-form .input-icon > i,
 .page-sidebar-menu .input-icon > i {

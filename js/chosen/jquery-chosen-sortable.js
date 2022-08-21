@@ -1,71 +1,50 @@
 /*
- * Author: Yves Van Broekhoven & Simon Menke
- * Created at: 2012-07-05
- *
- * Requirements:
- * - jQuery
- * - jQuery UI
- * - Chosen
- *
- * Version: 1.0.0
+ * http://antom.github.io/jquery-chosen-sortable/old/
  */
-(function($) {
 
-  $.fn.chosenOrder = function() {
-    var $this   = this.filter('.chosen-sortable[multiple]').first(),
-        $chosen = $this.siblings('.chosen-container');
-
-    return $($chosen.find('.chosen-choices li[class!="search-field"]').map( function() {
-      if (!this) {
-        return undefined;
-      }
-      text = $(this).html()
-      text = text.replace(/<b class="group-name">(.*)<\/b>/,'').replace(/<\/?[^>]+(>|$)/g, "")
-      //text = $(this).text()
-      return $this.find('option:contains(' + text + ')')[0];
-    }));
-  };
-
-
-  /*
-   * Extend jQuery
-   */
-  $.fn.chosenSortable = function(){
-    var $this = this.filter('.chosen-sortable[multiple]');
-
-    $this.each(function(){
-    	
-    	chosen_order = $(this).attr('chosen_order').split(','); $(this).setSelectionOrder(chosen_order);
-    	console.log(chosen_order)
-    	
-      var $select = $(this);
-      var $chosen = $select.siblings('.chosen-container');
-
-      // On mousedown of choice element,
-      // we don't want to display the dropdown list
-      $chosen.find('.chosen-choices').bind('mousedown', function(event){
-        if ($(event.target).is('span')) {
-          event.stopPropagation();
-        }
-      });
-
-      // Initialize jQuery UI Sortable
-      $chosen.find('.chosen-choices').sortable({
-        'placeholder' : 'ui-state-highlight',
-        'items'       : 'li:not(.search-field)',
-        //'update'      : _update,
-        'tolerance'   : 'pointer'
-      });
-
-      // Intercept form submit & order the chosens
-      $select.closest('form').on('submit', function(){      	
-        var $options = $select.chosenOrder();        
-        $select.children().remove();
-        $select.append($options);
-      });
-
-    });
-
-  };
-
-}(jQuery));
+! function(a) {
+    a.fn.chosenClassPrefix = function() {
+        return a(this).is('[class^="chzn-"]') ? "chzn" : "chosen"
+    }, a.fn.chosenOrder = function() {
+        var b = this.filter("." + this.chosenClassPrefix() + "-sortable[multiple]").first(),
+            c = b.siblings("." + this.chosenClassPrefix() + "-container");
+        return a(c.find("." + this.chosenClassPrefix() + '-choices li[class!="search-field"]').map(function() {
+            text = a(this).html();            
+            text = text.replace(/<b class="group-name">(.*)<\/b>/, '').replace(/<\/?[^>]+(>|$)/g, "").replace(/&amp;/g,'&');
+            //text = text.replace(/&amp;/g,'&')
+            //alert(text)
+            var value = false;
+            b.find("option:contains(" + text + ")").each(function(){            	
+            	//alert($(this).html()+'=='+text)
+            	if($(this).html().replace(/&amp;/g,'&')==text)
+            	{	
+            		value = this;            		
+            	}
+            })
+            
+            return this ?  value : void 0
+        }))
+    }, a.fn.chosenSortable = function() {
+        var b = this.filter("." + this.chosenClassPrefix() + "-sortable[multiple]");
+        b.each(function() {
+            chosen_order = (a(this).attr('chosen_order') ? a(this).attr('chosen_order').split(',') : new Array());
+            a(this).setSelectionOrder(chosen_order);
+            var b = a(this),
+                c = b.siblings("." + b.chosenClassPrefix() + "-container");
+            a.ui ? (c.find("." + b.chosenClassPrefix() + "-choices").bind("mousedown", function(b) {
+                a(b.target).is("span") && b.stopPropagation()
+            }), c.find("." + b.chosenClassPrefix() + "-choices").sortable({
+                placeholder: "search-choice-placeholder",
+                items: "li:not(.search-field)",
+                tolerance: "pointer",
+                start: function(a, b) {
+                    b.placeholder.width(b.item.innerWidth()), b.placeholder.height(b.item.innerHeight())
+                }
+            }), b.closest("form") && b.closest("form").bind("submit", function() {
+                var a = b.chosenOrder();
+                b.children().remove(), b.append(a)  
+                //alert(b.closest("form").attr('id'))
+            })) : console.error("jquery-chosen-sortable requires JQuery UI to have been initialised.")
+        })
+    }
+}(jQuery);

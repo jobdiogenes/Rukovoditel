@@ -122,5 +122,54 @@ class access_rules
 			
 		return (strlen($this->comments_access_schema) ? explode(',',$this->comments_access_schema) : array());
 	}
+	
+	static function has_add_buttons_access($entities_id, $parent_item_id)
+	{
+		global $app_entities_cache, $sql_query_having;
+		
+		if($app_entities_cache[$entities_id]['parent_id']==0)
+		{
+			return true;
+		}
+		else 
+		{
+			$reports_info_query = db_query("select * from app_reports where entities_id='" . db_input($app_entities_cache[$entities_id]['parent_id']). "' and reports_type='hide_add_button_rules" . $entities_id . "'");
+			if($reports_info = db_fetch_array($reports_info_query))
+			{				
+				//prepare forumulas query
+				$listing_sql_query_select = fieldtype_formula::prepare_query_select($reports_info['entities_id'],'');
+				
+				$listing_sql_query = reports::add_filters_query($reports_info['id'],'');
+																
+				//prepare having query for formula fields				
+				if(isset($sql_query_having[$reports_info['entities_id']]))
+				{
+					$listing_sql_query .= reports::prepare_filters_having_query($sql_query_having[$reports_info['entities_id']]);
+				}
+				
+				//has access if not fitlers setup
+				if(!strlen($listing_sql_query))
+				{
+					return true;
+				}
+				
+				$listing_sql = "select e.* " . $listing_sql_query_select . " from app_entity_" . $reports_info['entities_id'] . " e where e.id='" . $parent_item_id . "' " . $listing_sql_query;
+						
+				$item_info_query = db_query($listing_sql);
+				if($item_info = db_fetch_array($item_info_query))
+				{					
+					return false;
+				}
+				else
+				{
+					return true;
+				}
+			}
+			else
+			{
+				return true;
+			}
+		}
+	}
 		
 }

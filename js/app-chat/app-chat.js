@@ -67,8 +67,9 @@ function app_chat()
  */
 function app_chat_set_meta_title()
 {
-	count_unread_msg = $('#app-chat-button-count-unread').html().replace(/<\/?[^>]+>/gi, '');
-	if(count_unread_msg.length>0)
+	count_unread_msg = parseInt($('#app-chat-button-count-unread').text());
+			
+	if(count_unread_msg>0)
 	{		
 		$('title').html('('+count_unread_msg+') '+app_meta_title)
 	}

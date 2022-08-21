@@ -126,10 +126,10 @@
 		
 		$('#btn_export').click(function(){
 			$('#export_form').attr('target','_self');
-			$('#action').val('export')
+			$('#action').val((($('#file_extension').val()=='csv' || $('#file_extension').val()=='txt') ? 'export_csv':'export'))
 			$('#export_form').submit();
 		})
-		
+				
 		//load templates
 		load_items_export_templates()
 		load_items_export_templates_button();

@@ -15,6 +15,21 @@ if(count($app_selected_items[$_GET['reports_id']])==0)
 }
 else
 {
+    
+    $fields_access_schema = users::get_fields_access_schema($current_entity_id,$app_user['group_id']);
+    
+    $attachments_fields = [];
+    
+    $fields_query = db_query("select f.* from app_fields f, app_forms_tabs t where f.forms_tabs_id = t.id and f.type in ('" . implode("','",fields_types::get_attachments_types()) . "') and f.entities_id='" . db_input($current_entity_id) . "' order by t.sort_order, f.sort_order, f.name");
+    while($v = db_fetch_array($fields_query))
+    {
+        if(isset($fields_access_schema[$v['id']]))
+        {
+            if($fields_access_schema[$v['id']]=='hide') continue;
+        }
+        
+        $attachments_fields[] = '<div><label>' . input_checkbox_tag('fields[]',$v['id'],array('id'=>'fields_' . $v['id'],'class'=>'export_fields export_fields_' . $v['id'],'checked'=>'checked')) . ' ' . fields_types::get_option($v['type'],'name',$v['name']) . '</label></div>';
+    }
 ?>
 
 
@@ -22,7 +37,14 @@ else
 
 <ul class="nav nav-tabs" id="items_export_tabs">
   <li class="active"><a href="#select_fields_tab"  data-toggle="tab"><?php echo TEXT_SELECT_FIELD_TO_EXPORT ?></a></li>
-  <li><a href="#my_templates_tab"  data-toggle="tab"><?php echo TEXT_MY_TEMPLATES ?></a></li>   
+  <li><a href="#my_templates_tab"  data-toggle="tab"><?php echo TEXT_MY_TEMPLATES ?></a></li>
+  
+<?php
+  if(count($attachments_fields))
+  {
+      echo '<li><a href="#attachments_tab"  data-toggle="tab">' . TEXT_ATTACHMENTS . '</a></li>';
+  }
+?>   
 </ul>
     
 <div class="tab-content">
@@ -44,14 +66,14 @@ else
 
 $exclude_types = ($app_entities_cache[$current_entity_id]['parent_id']==0 ? ",'fieldtype_parent_item_id'":'');
 
-$fields_access_schema = users::get_fields_access_schema($current_entity_id,$app_user['group_id']);
+
 
 $tabs_query = db_fetch_all('app_forms_tabs',"entities_id='" . db_input($current_entity_id) . "' order by  sort_order, name");
 while($tabs = db_fetch_array($tabs_query))
 {
   $fileds_html = '';
   
-  $fields_query = db_query("select f.*,if(f.type in ('fieldtype_id','fieldtype_date_added','fieldtype_created_by'),-1,f.sort_order) as field_sort_order from app_fields f where  f.type not in ('fieldtype_action' {$exclude_types}) and f.entities_id='" . db_input($current_entity_id) . "' and forms_tabs_id='" . db_input($tabs['id']) . "' order by field_sort_order, f.name");
+  $fields_query = db_query("select f.*,if(f.type in ('fieldtype_id','fieldtype_date_added','fieldtype_created_by'),-1,f.sort_order) as field_sort_order from app_fields f where  f.type not in ('fieldtype_action','fieldtype_section' {$exclude_types}) and f.entities_id='" . db_input($current_entity_id) . "' and forms_tabs_id='" . db_input($tabs['id']) . "' order by field_sort_order, f.name");
   while($v = db_fetch_array($fields_query))
   {      
     //check field access
@@ -85,17 +107,23 @@ while($tabs = db_fetch_array($tabs_query))
 
 <br>
 
-	<div>
-		<?php echo TEXT_FILENAME ;?>
-	</div>
-	<div >
-		<?php
+
+	
+<div class="form-group">	
+	<?php
 			$current_entity_info = db_find('app_entities',$current_entity_id);
 			echo input_tag('filename',$current_entity_info['name'],array('class'=>'form-control input-large required')) 
-		?>
-	</div>
+	?>
+</div>
+<div class="form-group">
+	<label  for="file_extension">&nbsp;</label>
+	<?php 
+		$choices = ['xlsx'=>'.xlsx','csv'=>'.csv','txt'=>'.txt'];
+		echo select_tag('file_extension',$choices,'xlsx',array('class'=>'form-control input-small'))
+	?>	
+</div>	
 
-<br>
+<br><br>
 	
 	<div>
 		<?php 
@@ -131,12 +159,41 @@ while($tabs = db_fetch_array($tabs_query))
 		<div id="items_export_templates"></div>	
 		 
   </div>
+  
+<?php
+  if(count($attachments_fields))
+  {
+      $html = '
+        <div class="tab-pane fade" id="attachments_tab">
+        ' . form_tag('export_form', url_for('items/export_attachments','path=' . $_GET['path']),array('class'=>'form-inline'))  . input_hidden_tag('action','export') . input_hidden_tag('reports_id',(int)$_GET['reports_id']) . '
+            ' . implode('',$attachments_fields). '
+
+              <div class="input-group input-large margin-top-10 margin-bottom-10">
+                ' . input_tag('filename',$current_entity_info['name'],array('class'=>'form-control required','minlength'=>1,'required'=>'required')) . '
+                <span class="input-group-addon">.zip</span>
+              </div>
+
+            <button type="submit" class="btn btn-primary" id="btn_export"><i class="fa fa-file-archive-o"></i> ' . TEXT_BUTTON_EXPORT . '</button>
+          </form>
+        </div>
+
+        
+        ';
+      
+      
+      
+      echo $html;
+  }
+?>
 </div>
   
 
 </div> 
 
-<?php echo ajax_modal_template_footer('hide-save-button') ?>
+<?php 
+    $count_selected_text = sprintf(TEXT_SELECTED_RECORDS,count($app_selected_items[$_GET['reports_id']]));
+    echo ajax_modal_template_footer('hide-save-button','',$count_selected_text);
+?>
 
 <?php require(component_path('items/export.js')); ?>
 

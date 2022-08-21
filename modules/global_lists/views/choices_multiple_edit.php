@@ -34,7 +34,7 @@
     	<div class="input-group input-small color colorpicker-default" data-color="<?php echo '#ff0000' ?>" >
   	   <?php echo input_tag('bg_color','',array('class'=>'form-control input-small')) ?>
         <span class="input-group-btn">
-  				<button class="btn btn-default" type="button"><i style="background-color: #3865a8;"></i>&nbsp;</button>
+  				<button class="btn btn-default" type="button">&nbsp;</button>
   			</span>
   		</div>
       <?php echo tooltip_text(TEXT_CHOICES_BACKGROUND_COLOR_INFO); ?>

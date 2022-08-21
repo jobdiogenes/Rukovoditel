@@ -48,12 +48,17 @@
     }
 
     function _sess_gc($maxlifetime) {
-      db_query("delete from app_sessions where expiry < '" . time() . "'");
+      db_query("delete from app_sessions where expiry < '" . (time()-$maxlifetime) . "'");
 
       return true;
     }
 
     session_set_save_handler('_sess_open', '_sess_close', '_sess_read', '_sess_write', '_sess_destroy', '_sess_gc');
+  }
+  
+  function app_session_table_reset()
+  {
+  	db_query("delete from app_sessions where expiry < '" . strtotime("-1 day") . "'");
   }
 
   function app_session_start() {
@@ -132,12 +137,9 @@
     }
   }
 
-  function app_session_close() {
-    if (PHP_VERSION >= '4.0.4') {
-      return session_write_close();
-    } elseif (function_exists('session_close')) {
-      return session_close();
-    }
+  function app_session_close() 
+  {  
+      return session_write_close();    
   }
 
   function app_session_destroy() {

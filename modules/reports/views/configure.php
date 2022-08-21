@@ -33,11 +33,13 @@
     
   
   $fields_access_schema = users::get_fields_access_schema($reports_info['entities_id'],$app_user['group_id']);
+  
+  $listing = new items_listing($_GET['reports_id']);
 ?>
 
 <div class="modal-body">
 
-    
+<?php if(in_array($listing->get_listing_type(),['table','tree_table'])): ?>    
 <div><?php echo TEXT_LISTING_CFG_INFO ?></div>
 
 <table width="100%">
@@ -60,7 +62,7 @@
       }
       
       //skip fieldtype_parent_item_id for deafult listing
-      if($v['type']=='fieldtype_parent_item_id' and $reports_info['parent_id']==0)
+      if($v['type']=='fieldtype_parent_item_id' and ($app_entities_cache[$reports_info['entities_id']]['parent_id']==0 or strlen($app_path)))
       {
         continue;      
       }
@@ -80,7 +82,7 @@
 <div class="cfg_listing">        
 <ul id="fields_excluded_from_listing" class="sortable">
 <?php
-$exclude_fields_types_sql = " and f.type not in ('fieldtype_section','fieldtype_mapbbcode')";
+$exclude_fields_types_sql = " and f.type not in ('fieldtype_section','fieldtype_mapbbcode','fieldtype_mind_map','fieldtype_subentity_form')";
 $fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where " . (count($fields_in_listing)>0 ? "f.id not in (" . implode(',',$fields_in_listing). ") and " : "") . "  f.entities_id='" . db_input($reports_info['entities_id']) . "' and f.forms_tabs_id=t.id {$exclude_fields_types_sql} order by t.sort_order, t.name, f.sort_order, f.name");
 while($v = db_fetch_array($fields_query))
 {
@@ -91,7 +93,7 @@ while($v = db_fetch_array($fields_query))
   }
   
   //skip fieldtype_parent_item_id for deafult listing
-  if($v['type']=='fieldtype_parent_item_id' and $reports_info['parent_id']==0)
+  if($v['type']=='fieldtype_parent_item_id' and ($app_entities_cache[$reports_info['entities_id']]['parent_id']==0 or strlen($app_path)))
   {
     continue;      
   }
@@ -106,10 +108,11 @@ while($v = db_fetch_array($fields_query))
   </tr>
 </table>
 
+<?php endif ?>
+
 <?php echo TEXT_SHOW . ' ' .  input_tag('rows_per_page',($reports_info['rows_per_page']>0 ? $reports_info['rows_per_page'] : CFG_APP_ROWS_PER_PAGE), array('class'=>'form-control form-control-inline input-xsmall')) . ' <span style="text-transform: lowercase;">' . TEXT_ROWS_PER_PAGE . '.</span>' ?>
 
 </div>
-
 
 <script>
          

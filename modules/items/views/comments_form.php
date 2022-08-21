@@ -47,7 +47,12 @@ $html_tab_content = array();
 if(!isset($_GET['id']))
 {	
   $fields_access_schema = users::get_fields_access_schema($current_entity_id,$app_user['group_id']);
- 
+  
+  //check fields access rules for item
+  $item_info = db_find('app_entity_' . $current_entity_id,$current_item_id);  
+  $access_rules = new access_rules($current_entity_id, $item_info);
+  $fields_access_schema += $access_rules->get_fields_view_only_access();
+   
 //build default tab   
   $html_default_tab = '';
   $fields_query = db_query("select f.* from app_fields f where f.type not in (" . fields_types::get_reserverd_types_list() . ',' . fields_types::get_users_types_list() . ") and  f.entities_id='" . db_input($current_entity_id) . "' and f.comments_status=1 and f.comments_forms_tabs_id=0 order by f.comments_sort_order, f.name");
@@ -60,11 +65,11 @@ if(!isset($_GET['id']))
     $v['is_required'] = 0;
     
      $html_default_tab .='
-          <div class="form-group">
-          	<label class="col-md-3 control-label" for="fields_' . $v['id']  . '">' . fields_types::get_option($v['type'],'name',$v['name']) . '</label>
+          <div class="form-group form-group-' . $v['id'] . '">
+          	<label class="col-md-3 control-label" for="fields_' . $v['id']  . '">' . ($v['tooltip_display_as']=='icon' ? tooltip_icon($v['tooltip']) :'') . fields_types::get_option($v['type'],'name',$v['name']) . '</label>
             <div class="col-md-9">	
           	  ' . fields_types::render($v['type'],$v,array('field_' . $v['id']=>''),array('parent_entity_item_id'=>$parent_entity_item_id,'form'=>'comment')) . '
-              ' . tooltip_text($v['tooltip']) . '
+              ' . ($v['tooltip_display_as']!='icon' ? tooltip_text($v['tooltip']):'') . '
             </div>			
           </div>        
         ';   
@@ -93,11 +98,11 @@ if(!isset($_GET['id']))
   		$v['is_required'] = 0;
   	
   		$html .='
-          <div class="form-group">
-          	<label class="col-md-3 control-label" for="fields_' . $v['id']  . '">' . fields_types::get_option($v['type'],'name',$v['name']) . '</label>
+          <div class="form-group form-group-' . $v['id'] . '">
+          	<label class="col-md-3 control-label" for="fields_' . $v['id']  . '">' . ($v['tooltip_display_as']=='icon' ? tooltip_icon($v['tooltip']) :'') . fields_types::get_option($v['type'],'name',$v['name']) . '</label>
             <div class="col-md-9">
           	  ' . fields_types::render($v['type'],$v,array('field_' . $v['id']=>''),array('parent_entity_item_id'=>$parent_entity_item_id,'form'=>'comment')) . '
-              ' . tooltip_text($v['tooltip']) . '
+              ' . ($v['tooltip_display_as']!='icon' ? tooltip_text($v['tooltip']):'') . '
             </div>
           </div>
         ';
@@ -192,5 +197,10 @@ if(!isset($_GET['id']))
   //include comments form validation 
   require(component_path('items/comments_form_validation.js')) 
 ?> 
+
+<?php 
+	$app_items_form_name = 'comments_form';
+	require(component_path('items/forms_fields_rules.js')); 
+?>
 
    

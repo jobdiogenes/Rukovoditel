@@ -20,6 +20,8 @@
 	$app_user['email'] = CFG_EMAIL_ADDRESS_FROM;
 	$app_user['language'] = CFG_APP_LANGUAGE;
 	
+	$entity_cfg = new entities_cfg($current_entity_id);
+	
 	switch($app_module_action)
 	{		
 		case 'save':	
@@ -60,7 +62,7 @@
 				
 				$choices_values = new choices_values($current_entity_id);
 				
-				$fields_query = db_query("select f.* from app_fields f where f.type not in (" . fields_types::get_reserverd_types_list(). ",'fieldtype_related_records') and  f.entities_id='" . db_input($current_entity_id) . "' order by f.sort_order, f.name");
+				$fields_query = db_query("select f.* from app_fields f where f.type not in (" . fields_types::get_reserverd_types_list(). ",'fieldtype_related_records','fieldtype_user_last_login_date') and  f.entities_id='" . db_input($current_entity_id) . "' order by f.sort_order, f.name");
 				while($field = db_fetch_array($fields_query))
 				{
 					$default_field_value = '';
@@ -102,14 +104,23 @@
 					require(component_path('items/crete_new_user'));
 				}
 				
-				$registration_user_group_id = (isset($_POST['fields'][6]) ? $_POST['fields'][6] : false);
-			
+							
 				$sql_data['date_added'] = time();
 				$sql_data['created_by'] = 0;
 				$sql_data['parent_item_id'] = 0;
-				$sql_data['field_6'] = ($registration_user_group_id>0 ? $registration_user_group_id :  (int)CFG_PUBLIC_REGISTRATION_USER_GROUP); //access group
-				$sql_data['field_5'] = 1; //status
+				$sql_data['field_6'] = (!isset($_POST['fields'][6]) ? (int)CFG_PUBLIC_REGISTRATION_USER_GROUP : $sql_data['field_6']); //access group
+				$sql_data['field_5'] = (CFG_PUBLIC_REGISTRATION_USER_ACTIVATION=='manually' ? 0 : 1 ); //status
 				$sql_data['field_14'] = CFG_APP_SKIN;
+				$sql_data['is_email_verified'] = (CFG_PUBLIC_REGISTRATION_USER_ACTIVATION=='email' ? 0 : 1 ); //status
+                                
+                                if(!strlen($sql_data['field_13']))
+                                {
+                                    $sql_data['field_13'] = CFG_APP_LANGUAGE;
+                                }
+				
+                                
+                                //print_rr($sql_data);
+                                //exit();
 				
 				db_perform('app_entity_' . $current_entity_id,$sql_data);
 				$item_id = db_insert_id();
@@ -117,6 +128,9 @@
 				//insert choices values for fields with multiple values
 				$choices_values->process($item_id);
 				
+				//autoupdate all field types
+				fields_types::update_items_fields($current_entity_id, $item_id);
+				 				
 				//send notification to users
 				if(strlen(CFG_REGISTRATION_NOTIFICATION_USERS))
 				{
@@ -168,23 +182,42 @@
 					}
 				}
 				
-				//sending sms
-				if(class_exists('sms'))
-				{				
+				//set username
+				$username = db_prepare_input($_POST['fields'][12]);
+								
+				if(is_ext_installed())
+				{        	
+				    //sending sms
 					$modules = new modules('sms');
 					$sms = new sms($current_entity_id, $item_id);
 					$sms->send_to = $app_send_to;
 					$sms->send_insert_msg();
-				}				
 				
-				//log changeds
-				if(class_exists('track_changes'))
-				{
+					//log changeds			
 					$log = new track_changes($current_entity_id, $item_id);
 					$log->log_insert();
+					
+					//subscribe
+					$modules = new modules('mailing');
+					$mailing = new mailing($current_entity_id, $item_id);
+					$mailing->subscribe();
+					
+					//run actions after item insert
+					$processes = new processes($current_entity_id);
+					$processes->run_after_insert($item_id);
 				}
 		
-				users::login($_POST['fields'][12],$password,0);
+				switch(CFG_PUBLIC_REGISTRATION_USER_ACTIVATION)
+				{
+				    case 'email':
+				    case 'automatic':
+				        users::login($username,$password,0);
+				        break;				    
+				    case 'manually':
+				        redirect_to('users/registration_success');
+				        break;
+				}
+				
 			}
 			break;
 			

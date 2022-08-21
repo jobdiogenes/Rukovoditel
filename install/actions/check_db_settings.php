@@ -7,7 +7,7 @@
   
   $params = array('db_host'=>$_POST['db_host'],'db_port'=>$_POST['db_port'],'db_username'=>$_POST['db_username'],'db_password'=>$_POST['db_password'],'db_name'=>$_POST['db_name'],'lng'=>$_GET['lng']);
     
-  db_connect($server . (strlen($port)>0 ? ':' . $port : ''),$username, $password,$database,'db_link',$params);
+  db_connect($server,$username, $password,$database,$port,'db_link',$params);
       
 //check user privileges    
   $user_privileges_list = array();

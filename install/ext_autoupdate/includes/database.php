@@ -1,6 +1,6 @@
 <?php
 
-  function db_connect($server, $username, $password,$database, $link = 'db_link',$params = array()) {    
+  function db_connect($server, $username, $password,$database,$port, $link = 'db_link',$params = array()) {    
     global $$link;
       
     $$link = mysqli_init();
@@ -17,9 +17,20 @@
         db_error('Setting MYSQLI_INIT_COMMAND failed',$params);
     }
     
-    if (!@mysqli_real_connect($$link, $server, $username, $password, $database)) {
-        db_error('Error: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error(),$params);
+    if(strlen($port))
+    {
+    	if (!@mysqli_real_connect($$link, $server, $username, $password, $database, $port)) {
+    		db_error('Error: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error(),$params);
+    	}
     }
+    else
+    {
+    	if (!@mysqli_real_connect($$link, $server, $username, $password, $database)) {
+    		db_error('Error: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error(),$params);
+    	}
+    }
+    
+    db_query("SET sql_mode = ''");
 
     return $$link;    
   }

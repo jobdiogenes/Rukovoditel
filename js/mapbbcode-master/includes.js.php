@@ -13,6 +13,7 @@
 <script src="js/mapbbcode-master/src/handlers/Handler.Color.js"></script>
 <script src="js/mapbbcode-master/src/handlers/Handler.Length.js"></script>
 
+
 <?php if(is_file('js/mapbbcode-master/dist/lang/' . APP_LANGUAGE_SHORT_CODE . '.js')){ ?>
 	<script src="js/mapbbcode-master/dist/lang/<?php echo APP_LANGUAGE_SHORT_CODE ?>.js"></script>
 <?php }else{ ?>

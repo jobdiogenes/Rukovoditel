@@ -30,7 +30,7 @@
     
     if(!is_valid)
     {
-    	var message = '<?php echo TEXT_ERROR_COMMENTS_FORM_GENERAL ?>';
+    	var message = '<?php echo htmlspecialchars(TEXT_ERROR_COMMENTS_FORM_GENERAL,ENT_QUOTES) ?>';
 			$("div#form-error-container").html('<div class="alert alert-danger">'+message+'</div>');
 			$("div#form-error-container").show();
       $("div#form-error-container").delay(5000).fadeOut(); 

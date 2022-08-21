@@ -2,11 +2,12 @@
 
 class reports_sections
 {
-	public $reports_groups_id;
+	public $reports_groups_id, $is_common;
 	
-	function __construct($reports_groups_id)
+	function __construct($reports_groups_id, $is_common)
 	{
 		$this->reports_groups_id = $reports_groups_id;
+		$this->is_common = $is_common;
 	}
 	
 	function render()
@@ -23,8 +24,8 @@ class reports_sections
 						<div class="panel-body">
 							 <table width="100%">
 								 <tr>
-									 <td width="45%" style="border-right: 1px solid #ddd; text-align: center; padding-right: 15px;">' . $this->get_reports_choices($sections,'report_left') . '</td>
-									 <td width="45%" style="text-align: center; padding-left: 15px;">' . $this->get_reports_choices($sections,'report_right') . '</td>
+									 <td width="' .($sections['count_columns']==2 ? '45%':'90%') . '" style="border-right: 1px solid #ddd; text-align: center; padding-right: 15px;">' . $this->get_reports_choices($sections,'report_left') . '</td>
+									 ' . ($sections['count_columns']==2 ? '<td width="45%" style="text-align: center; padding-left: 15px;">' . $this->get_reports_choices($sections,'report_right') . '</td>' : '') . '
 									 <td align="right"><a title="' . addslashes(TEXT_DELETE). '" class="btn btn-default btn-xs purple" onClick="reports_section_delete(' . $sections['id'] . ')" href="#"><i class="fa fa-trash-o"></i></a></td>
 					       </tr>
 							 </table>
@@ -64,10 +65,21 @@ class reports_sections
 		$html = '';
 		$choices = array(''=>'');
 		
-		$reports_query = db_query("select id, name from app_reports where created_by='" . db_input($app_user['id']) . "' and reports_type in ('standard') order by name");
-		while($v = db_fetch_array($reports_query))
+		if($this->is_common)
 		{
-			$choices[TEXT_STANDARD_REPORTS]['standard' . $v['id']] = $v['name'];
+			$reports_query = db_query("select id, name from app_reports where  reports_type in ('common') order by name");
+			while($v = db_fetch_array($reports_query))
+			{
+				$choices[TEXT_EXT_COMMON_REPORTS]['common' . $v['id']] = $v['name'];
+			}
+		}	
+		else
+		{	
+			$reports_query = db_query("select id, name from app_reports where created_by='" . db_input($app_user['id']) . "' and reports_type in ('standard') order by name");
+			while($v = db_fetch_array($reports_query))
+			{
+				$choices[TEXT_STANDARD_REPORTS]['standard' . $v['id']] = $v['name'];
+			}
 		}
 		
 		if(is_ext_installed())
@@ -83,6 +95,8 @@ class reports_sections
 				$choices[TEXT_EXT_СALENDAR]['calendar_public'] = TEXT_EXT_СALENDAR_PUBLIC;
 			}
 			
+			
+			//calendar preport
 			if($app_user['group_id']>0)
 			{
 				$reports_query = db_query("select c.* from app_ext_calendar c, app_entities e, app_ext_calendar_access ca where e.id=c.entities_id and c.id=ca.calendar_id and ca.access_groups_id='" . db_input($app_user['group_id']) . "' order by c.name");
@@ -96,6 +110,17 @@ class reports_sections
 				$choices[TEXT_EXT_СALENDAR]['calendarreport' . $v['id']] = $v['name'];
 			}
 			
+			//pivot calendar preport			
+			$reports_query = db_query("select id, name, users_groups from app_ext_pivot_calendars order by name");			
+			while($reports = db_fetch_array($reports_query))
+			{
+				if(pivot_calendars::has_access($reports['users_groups']))
+				{
+					$choices[TEXT_EXT_PIVOT_СALENDAR]['pivot_calendars' . $reports['id']] = $reports['name'];
+				}
+			}
+			
+			//graphic			
 			$reports_query = db_query("select id, name, allowed_groups from app_ext_graphicreport order by name");
 			while($v = db_fetch_array($reports_query))
 			{
@@ -105,6 +130,7 @@ class reports_sections
 				}
 			}
 			
+			//funnel
 			$reports_query = db_query("select id, name, users_groups from app_ext_funnelchart order by name");
 			while($v = db_fetch_array($reports_query))
 			{
@@ -112,6 +138,38 @@ class reports_sections
 				{
 					$choices[TEXT_EXT_FUNNELCHART]['funnelchart' . $v['id']] = $v['name'];
 				}
+			}
+                        
+                        //pivot tables
+			$reports_query = db_query("select * from app_ext_pivot_tables order by name");
+			while($v = db_fetch_array($reports_query))
+			{
+                            $pivot_table = new pivot_tables($v);
+                            
+                            if($pivot_table->has_access())
+                            {
+                                    $choices[TEXT_EXT_PIVOT_TABLES]['pivot_tables' . $v['id']] = $v['name'];
+                            }
+			}
+			
+			//pivot
+			$reports_query = db_query("select id, name, allowed_groups from app_ext_pivotreports order by name");
+			while($v = db_fetch_array($reports_query))
+			{
+				if(in_array($app_user['group_id'],explode(',',$v['allowed_groups'])) or $app_user['group_id']==0)
+				{
+					$choices[TEXT_EXT_PIVOTREPORTS]['pivotreports' . $v['id']] = $v['name'];
+				}
+			}
+                        
+                        //pivot tables
+			$reports_query = db_query("select * from app_ext_resource_timeline order by name");
+			while($v = db_fetch_array($reports_query))
+			{                                                       
+                            if(resource_timeline::has_access($v['users_groups']))
+                            {
+                                    $choices[TEXT_EXT_RESOURCE_TIMELINE]['resource_timeline' . $v['id']] = $v['name'];
+                            }
 			}
 		}
 		

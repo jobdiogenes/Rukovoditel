@@ -7,6 +7,17 @@ Based on http://getbootstrap.com/css/#responsive-utilities-classes
 Form Medium Devices Up To Large Devices
 ***/
 
+
+/***
+Fix in 2.8.1 issue with .navbar-collapse that auto collapse
+.navbar-collapse was removed from sidebar.php page-sidebar div 
+***/
+@media (min-width: 992px){
+  .main-navbar-collapse{
+      display: block !important;
+  }
+}
+
 @media (min-width: 992px) and (max-width: 1200px) {  
 
 	.page-boxed .header .dropdown .username {
@@ -347,7 +358,9 @@ From Medium Devices Up To Larger Devices
 	  padding-left: 15px !important;
 	}
 	
-	.page-sidebar-closed .page-sidebar-menu > li:hover > .sub-menu > li > a .fa{
+	.page-sidebar-closed .page-sidebar-menu > li:hover > .sub-menu > li > a .fa,
+	.page-sidebar-closed .page-sidebar-menu > li:hover > .sub-menu > li > a .la
+	{
 		display:none;
 	}
 	
@@ -451,15 +464,19 @@ Up To Medium Devices
  		display: block;
  	}
 
- 	.page-sidebar.navbar-collapse {
+ 	.page-sidebar.navbar-collapse, 
+        .page-sidebar.main-navbar-collapse {
   		max-height: 340px;
   	}
+        
+        
 
  	.page-sidebar.navbar-collapse.collapse {
 	    display: none !important;
 	}
 
-	.page-sidebar.navbar-collapse.in {	 	
+	.page-sidebar.navbar-collapse.in,
+        .page-sidebar.main-navbar-collapse.in{	 	
 	 	overflow: hidden !important;
 	 	overflow-y: auto !important;
 	 }

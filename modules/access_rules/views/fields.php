@@ -41,3 +41,29 @@ while($v = db_fetch_array($form_fields_query)):
 </tbody>
 </table>
 </div>
+
+<?php 
+$entities_info = db_find('app_entities',$_GET['entities_id']);
+if($entities_info['parent_id']!=0)
+{
+	$parent_entities_info = db_find('app_entities',$entities_info['parent_id']);
+	
+	$reports_info_query = db_query("select * from app_reports where entities_id='" . db_input($parent_entities_info['id']). "' and reports_type='hide_add_button_rules" . $_GET['entities_id'] . "'");
+	if(!$reports_info = db_fetch_array($reports_info_query))
+	{
+		$sql_data = array('name'=>'',
+				'entities_id'=>$parent_entities_info['id'],
+				'reports_type'=>'hide_add_button_rules'. $_GET['entities_id'],
+				'in_menu'=>0,
+				'in_dashboard'=>0,
+				'created_by'=>0,
+		);
+		db_perform('app_reports',$sql_data);
+		$reports_id = db_insert_id();
+		
+		$reports_info = db_find('app_reports',$reports_id);
+	}
+	
+	require(component_path('access_rules/hide_add_button_rules'));
+}
+?>

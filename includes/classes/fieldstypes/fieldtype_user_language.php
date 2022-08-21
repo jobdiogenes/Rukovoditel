@@ -17,11 +17,11 @@ class fieldtype_user_language
   
   function process($options)
   {
-    return db_prepare_input($options['value']);
+      return db_prepare_input(str_replace(['..','/','\/'],'',$options['value']));
   }
   
   function output($options)
   {
-    return $options['value'];
+    return implode(' ', array_map('ucfirst',explode('_',substr($options['value'],0,-4))));
   }
 }

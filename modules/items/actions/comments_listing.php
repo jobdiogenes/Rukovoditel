@@ -52,8 +52,8 @@ while($item = db_fetch_array($items_query))
   {
     $html_action_column = '
       <td class="nowrap">
-      ' . (users::has_comments_access('delete', $access_rules->get_comments_access_schema()) ? button_icon_delete(url_for('items/comments_delete','id=' .$item['id'] . '&path=' . $_POST['path'])) . '<br>':'') . '
-      ' . (users::has_comments_access('update', $access_rules->get_comments_access_schema()) ? button_icon_edit(url_for('items/comments_form','id=' .$item['id'] . '&path=' . $_POST['path'])) . '<br>':'') . '
+      ' . ((users::has_comments_access('delete', $access_rules->get_comments_access_schema()) and ($item['created_by']==$app_user['id'] or $app_user['group_id']==0 or users::has_comments_access('full', $access_rules->get_comments_access_schema()))) ? button_icon_delete(url_for('items/comments_delete','id=' .$item['id'] . '&path=' . $_POST['path'])) . '<br>':'') . '
+      ' . ((users::has_comments_access('update', $access_rules->get_comments_access_schema()) and ($item['created_by']==$app_user['id'] or $app_user['group_id']==0 or users::has_comments_access('full', $access_rules->get_comments_access_schema()))) ? button_icon_edit(url_for('items/comments_form','id=' .$item['id'] . '&path=' . $_POST['path'])) . '<br>':'') . '
 			' . (users::has_comments_access('create', $access_rules->get_comments_access_schema()) ?  button_icon(TEXT_REPLY,'fa fa-reply',url_for('items/comments_form','reply_to=' .$item['id'] . '&path=' . $_POST['path'])):'') . '
       </td>
     ';
@@ -74,10 +74,11 @@ while($item = db_fetch_array($items_query))
                             'field'=>$field, 
                             'path'=>$_POST['path'],
     												'is_listing'=>true,
-                            'choices_cache'=>$choices_cache);
-          
+    												'is_comments_listing' =>true,
+    );
+        
     $html_fields .='                      
-        <tr><th>&bull;&nbsp;' . $field['name'] . ':&nbsp;</th><td>' . fields_types::output($output_options). '</td></tr>           
+        <tr><th>&bull;&nbsp;' . fields_types::get_option($field['type'],'name',$field['name']) . ':&nbsp;</th><td>' . fields_types::output($output_options). '</td></tr>           
     ';
   }
   
@@ -90,7 +91,7 @@ while($item = db_fetch_array($items_query))
   $output_options = array('class'=>'fieldtype_attachments',
                           'value'=>$item['attachments'],
                           'path'=>$_POST['path'],
-                          'field'=>array('entities_id'=>$current_entity_id,'configuration'=>''),
+                          'field'=>array('entities_id'=>$current_entity_id,'configuration'=>json_encode(['use_image_preview'=>$entity_cfg->get('image_preview_in_comments',0)])),
                           'item'=>array('id'=>$current_item_id)); 
                           
   $attachments = fields_types::output($output_options);
@@ -98,6 +99,12 @@ while($item = db_fetch_array($items_query))
   if($entity_cfg->get('use_editor_in_comments')!=1)
   {
     $item['description'] = nl2br($item['description']);
+  }
+  
+  $photo = '';
+  if($entity_cfg->get('disable_avatar_in_comments',0)!=1 and $item['created_by'])
+  {
+      $photo = render_user_photo($app_users_cache[$item['created_by']]['photo']);
   }
 
    $html .= '
@@ -109,7 +116,9 @@ while($item = db_fetch_array($items_query))
         			$attachments . 
         			$html_fields .        			
       '</td>
-      <td class="nowrap">' . format_date_time($item['date_added']) . ($item['created_by']>0 ? '<br><span ' . users::render_publi_profile($app_users_cache[$item['created_by']],true). '>' . $app_users_cache[$item['created_by']]['name']. '</span><br>' . render_user_photo($app_users_cache[$item['created_by']]['photo']) : '') . '</td>
+      <td class="nowrap">' . 
+           format_date_time($item['date_added']) . 
+           ($item['created_by']>0 ? '<br><span ' . users::render_publi_profile($app_users_cache[$item['created_by']],true). '>' . $app_users_cache[$item['created_by']]['name']. '</span><br>' . $photo : '') . '</td>
     </tr>
   '; 
 }

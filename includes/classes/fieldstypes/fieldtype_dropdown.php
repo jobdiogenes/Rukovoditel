@@ -13,44 +13,61 @@ class fieldtype_dropdown
   {
     $cfg = array();
     
-    $cfg[] = array('title'=>TEXT_NOTIFY_WHEN_CHANGED, 'name'=>'notify_when_changed','type'=>'checkbox','tooltip_icon'=>TEXT_NOTIFY_WHEN_CHANGED_TIP);
+    $cfg[TEXT_SETTINGS][] = array('title'=>TEXT_NOTIFY_WHEN_CHANGED, 'name'=>'notify_when_changed','type'=>'checkbox','tooltip_icon'=>TEXT_NOTIFY_WHEN_CHANGED_TIP);
     
-    $cfg[] = array('title'=>TEXT_DEFAULT_TEXT, 
+    $cfg[TEXT_SETTINGS][] = array('title'=>TEXT_DEFAULT_TEXT, 
                    'name'=>'default_text',
                    'type'=>'input',                   
                    'tooltip_icon'=>TEXT_DEFAULT_TEXT_INFO,
                    'params'=>array('class'=>'form-control input-medium'));
     
-    $cfg[] = array('title'=>TEXT_WIDHT, 
+    $cfg[TEXT_SETTINGS][] = array('title'=>TEXT_WIDHT, 
                    'name'=>'width',
                    'type'=>'dropdown',
                    'choices'=>array('input-small'=>TEXT_INPTUT_SMALL,'input-medium'=>TEXT_INPUT_MEDIUM,'input-large'=>TEXT_INPUT_LARGE,'input-xlarge'=>TEXT_INPUT_XLARGE),
                    'tooltip_icon'=>TEXT_ENTER_WIDTH,
                    'params'=>array('class'=>'form-control input-medium'));
     
-    $cfg[] = array('title'=>TEXT_HIDE_FIELD_IF_EMPTY, 'name'=>'hide_field_if_empty','type'=>'checkbox','tooltip_icon'=>TEXT_HIDE_FIELD_IF_EMPTY_TIP);
+    $cfg[TEXT_SETTINGS][] = array('title'=>TEXT_HIDE_FIELD_IF_EMPTY, 'name'=>'hide_field_if_empty','type'=>'checkbox','tooltip_icon'=>TEXT_HIDE_FIELD_IF_EMPTY_TIP);
     
-    $cfg[] = array('title'=>TEXT_USE_SEARCH, 
+    $cfg[TEXT_SETTINGS][] = array('title'=>TEXT_USE_SEARCH, 
                    'name'=>'use_search',
                    'type'=>'dropdown',
                    'choices'=>array('0'=>TEXT_NO,'1'=>TEXT_YES),
                    'tooltip'=>TEXT_USE_SEARCH_INFO,
-                   'params'=>array('class'=>'form-control input-medium'));
-   
-    $cfg[] = array('title'=>TEXT_DISPLAY_CHOICES_VALUES, 'name'=>'display_choices_values','type'=>'checkbox','tooltip_icon'=>TEXT_DISPLAY_CHOICES_VALUES_TIP);
+                   'params'=>array('class'=>'form-control input-medium'));       
                 
     //cfg global list if exist
     if(count($choices = global_lists::get_lists_choices())>0)
     {              
-      $cfg[] = array('title'=>TEXT_USE_GLOBAL_LIST, 
+      $cfg[TEXT_SETTINGS][] = array('title'=>TEXT_USE_GLOBAL_LIST, 
                      'name'=>'use_global_list',
                      'type'=>'dropdown',
                      'choices'=>$choices,
                      'tooltip'=>TEXT_USE_GLOBAL_LIST_TOOLTIP,
                      'params'=>array('class'=>'form-control input-medium'));
-    }                               
+    }  
     
-    return $cfg;
+    
+    $cfg[TEXT_VALUE][] = array('title'=>TEXT_DISPLAY_CHOICES_VALUES, 'name'=>'display_choices_values','type'=>'checkbox','tooltip_icon'=>TEXT_DISPLAY_CHOICES_VALUES_TIP);
+    
+    $cfg[TEXT_VALUE][] = array(
+        'title'=>TEXT_DISPLAY_PARENT_NAME, 
+        'name'=>'display_parent_name',
+        'type'=>'dropdown',
+        'choices'=>[0=>TEXT_NO,1=>TEXT_YES],
+        'params'=>array('class'=>'form-control input-small'));
+    
+    $cfg[TEXT_VALUE][] = array(
+        'title' => TEXT_SEPARATOR,
+        'name' => 'parent_name_separator',
+        'type' => 'input',
+        'default' =>':',            
+        'params' => array('class' => 'form-control input-medium'),
+        'form_group'=>['form_display_rules'=>'fields_configuration_display_parent_name:1']
+        );
+
+        return $cfg;
   }  
   
   function render($field,$obj,$params = array())
@@ -63,18 +80,18 @@ class fieldtype_dropdown
 //use global lists if exsit    
     if($cfg->get('use_global_list')>0)
     {
-      $choices = global_lists::get_choices($cfg->get('use_global_list'),(($field['is_required']==0 or strlen($cfg->get('default_text'))>0) ? true:false), $cfg->get('default_text'));
+      $choices = global_lists::get_choices($cfg->get('use_global_list'),(($field['is_required']==0 or strlen($cfg->get('default_text'))>0) ? true:false), $cfg->get('default_text'),$obj['field_' . $field['id']],true,$cfg->get('display_choices_values'));
       $default_id = global_lists::get_choices_default_id($cfg->get('use_global_list'));
     }
     else
     {                    
-      $choices = fields_choices::get_choices($field['id'],(($field['is_required']==0 or strlen($cfg->get('default_text'))>0) ? true:false), $cfg->get('default_text'), $cfg->get('display_choices_values'));
+      $choices = fields_choices::get_choices($field['id'],(($field['is_required']==0 or strlen($cfg->get('default_text'))>0) ? true:false), $cfg->get('default_text'), $cfg->get('display_choices_values'),$obj['field_' . $field['id']],true);
       $default_id = fields_choices::get_default_id($field['id']); 
     }
     
     $value = ($obj['field_' . $field['id']]>0 ? $obj['field_' . $field['id']] : ($params['form']=='comment' ? '':$default_id)); 
     
-    return select_tag('fields[' . $field['id'] . ']',$choices,$value,$attributes);
+    return select_tag('fields[' . $field['id'] . ']',$choices,$value,$attributes) . fields_types::custom_error_handler($field['id']);
   }
   
   function process($options)
@@ -103,14 +120,29 @@ class fieldtype_dropdown
   {    
     $cfg = new fields_types_cfg($options['field']['configuration']);
     
-    //render global list value
-    if($cfg->get('use_global_list')>0)
+    if($cfg->get('display_parent_name')==1)
     {
-      return global_lists::render_value($options['value']);
+        //render global list value
+        if($cfg->get('use_global_list')>0)
+        {
+          return global_lists::render_value_with_parents($options['value'],false,$cfg->get('parent_name_separator'));
+        }
+        else
+        {
+          return fields_choices::render_value_with_parents($options['value'],false,$cfg->get('parent_name_separator'));
+        }
     }
     else
     {
-      return fields_choices::render_value($options['value']);
+        //render global list value
+        if($cfg->get('use_global_list')>0)
+        {
+          return global_lists::render_value($options['value']);
+        }
+        else
+        {
+          return fields_choices::render_value($options['value']);
+        }
     }
   }  
   

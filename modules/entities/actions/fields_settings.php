@@ -31,6 +31,15 @@ switch($app_module_action)
             {
               $fields_configuration['fields_in_popup'] = '';
             }  
+            
+            $fields_configuration['create_related_comment'] = $_POST['create_related_comment'];
+            $fields_configuration['create_related_comment_text'] = $_POST['create_related_comment_text'];
+            $fields_configuration['delete_related_comment'] = $_POST['delete_related_comment'];
+            $fields_configuration['delete_related_comment_text'] = $_POST['delete_related_comment_text'];
+            $fields_configuration['create_related_comment_to'] = $_POST['create_related_comment_to'];
+            $fields_configuration['create_related_comment_to_text'] = $_POST['create_related_comment_to_text'];
+            $fields_configuration['delete_related_comment_to'] = $_POST['delete_related_comment_to'];
+            $fields_configuration['delete_related_comment_to_text'] = $_POST['delete_related_comment_to_text'];
           break;
           
         case 'fieldtype_entity':

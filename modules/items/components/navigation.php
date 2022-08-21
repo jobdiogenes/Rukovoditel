@@ -44,12 +44,34 @@
   </div>
 <?php endif ?>  
   
-  
-  <?php if($current_item_id==0): ?>
-    <h3 class="page-title"><?php echo $app_breadcrumb[count($app_breadcrumb)-1]['title'] ?></h3>
-  <?php endif ?>    
+ 
+  <?php 
+  	if($current_item_id==0)
+  	{
+  		$help_pages = new help_pages($current_entity_id);
+  		
+  		
+  		$title = $app_breadcrumb[count($app_breadcrumb)-1]['title'] . $help_pages->render_icon('listing');
+  		
+  		if(is_ext_installed())
+  		{  			
+  			$common_filters = new common_filters($current_entity_id,$reports_info['id']);
+  			$common_filters->parent_item_id = $parent_entity_item_id;
+  			echo $common_filters->render($title);
+  		}
+  		else
+  		{	  		
+                    echo '<h3 class="page-title">' . $title . '</h3>';
+  		}
+  		
+    	echo $help_pages->render_announcements();
+  		 	
+    } 
+   ?>    
 
   </div>
 </div>
+
+
 
 

@@ -18,9 +18,9 @@
       $this->page_name = $page_holder;
 
       if (isset($_GET[$page_holder])) {
-        $page = $_GET[$page_holder];
+        $page = (int)$_GET[$page_holder];
       } elseif (isset($_POST[$page_holder])) {
-        $page = $_POST[$page_holder];
+        $page = (int)$_POST[$page_holder];
       } else {
         $page = '';
       }

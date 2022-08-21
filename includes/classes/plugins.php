@@ -55,13 +55,16 @@ class plugins
     {
       foreach($plugin_menu as $v)
       {
+      	if(!isset($v['modalbox'])) $v['modalbox'] = false;
+        $v['style'] = $v['style']??'';
+      	
         if($v['modalbox']==true)
         {
-          $html .= '<li>' . link_to_modalbox($v['title'],$v['url'] . $url_params) . '</li>';
+          $html .= '<li>' . link_to_modalbox($v['title'],$v['url'] . $url_params,['style'=>$v['style']]) . '</li>';
         }
         else
         {        		
-          $html .= '<li>' . link_to($v['title'],$v['url'] . $url_params) . '</li>';
+          $html .= '<li>' . link_to($v['title'],$v['url'] . $url_params,['style'=>$v['style']]) . '</li>';
         }
       }
     }
@@ -71,25 +74,34 @@ class plugins
   
   static public function include_dashboard_with_selected_menu_items($reports_id, $url_params = '')
   {
-    global $app_plugin_menu, $app_user;
+    global $app_plugin_menu, $app_user, $app_module_path;
     
     $html = '';
             
     $reports_info_query = db_query("select * from app_reports where id='" . db_input($reports_id). "'");
     $reports_info = db_fetch_array($reports_info_query);
     
-    if(class_exists('processes'))
+    if(is_ext_installed())
     {
     	$processes = new processes($reports_info['entities_id']);    	
-    	$processes->rdirect_to = (strstr($url_params, 'parent_item_info_page') ? 'parent_item_info_page':'dashboard');   
+    	
+    	if($app_module_path=='dashboard/reports')
+    	{
+    		$processes->rdirect_to = 'reports_groups_' . $_GET['id'];
+    	}
+    	else
+    	{
+    		$processes->rdirect_to = (strstr($url_params, 'parent_item_info_page') ? 'parent_item_info_page':'dashboard');
+    	}
+    	
     	$html .= $processes->render_buttons('menu_with_selected',$reports_info['id']);
     }
     
     $access_schema = users::get_entities_access_schema($reports_info['entities_id'],$app_user['group_id']);
     
-    if(count($app_plugin_menu)>0 and users::has_access('update_selected',$access_schema))
+    if(is_ext_installed())
     {           
-      if(users::has_access('update',$access_schema))
+      if(users::has_access('update_selected',$access_schema))
       {
         //update records        
         $html .= '<li>' . link_to_modalbox('<i class="fa fa-edit"></i> ' . TEXT_EXT_UPDATE_RECORDS,url_for('ext/with_selected/update','reports_id=' . $reports_id . $url_params)) . '</li>';
@@ -117,6 +129,14 @@ class plugins
           $html .= '<li>' . link_to_modalbox('<i class="fa fa-arrows-h"></i> ' . TEXT_MOVE_RECORDS,url_for('ext/with_selected/move','reports_id=' . $reports_id . $url_params)) . '</li>';
         }
       }
+      
+      $html .= export_templates::get_users_templates_by_position($reports_info['entities_id'], 'menu_with_selected_dashboard','&reports_id=' . $reports_id . $url_params . (!strstr($url_params,'path') ? '&path=' . $reports_info['entities_id'] : '') );
+      
+      $html .= xml_export::get_users_templates_by_position($reports_info['entities_id'], 'menu_with_selected_dashboard','&reports_id=' . $reports_id . $url_params . (!strstr($url_params,'path') ? '&path=' . $reports_info['entities_id'] : '') );
+      
+      $html .= export_selected::get_users_templates_by_position($reports_info['entities_id'], 'menu_with_selected_dashboard','&reports_id=' . $reports_id . $url_params );
+      
+      
     }
     
     if(entities::has_subentities($reports_info['entities_id'])==0 and users::has_access('delete',$access_schema) and users::has_access('delete_selected',$access_schema) and $reports_info['entities_id']!=1)

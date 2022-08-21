@@ -24,7 +24,7 @@
   <tr>
     <td style="white-space: nowrap;"><?php echo button_icon_delete(url_for('users_groups/delete','id=' . $v['id'])) . ' ' . button_icon_edit(url_for('users_groups/form','id=' . $v['id'])) ?></td>    
     <td><?php echo $v['id'] ?></td>
-    <td><?php echo link_to($v['name'], url_for('users_groups/pivot_access_table','id=' . $v['id'])) ?></td>
+    <td><?php echo link_to($v['name'], url_for('users_groups/pivot_access_table','id=' . $v['id'])) . ' ' . tooltip_icon($v['notes']) ?></td>
     <td><?php echo render_bool_value($v['is_default']) ?></td>
     <td><?php echo render_bool_value($v['is_ldap_default']) ?></td>
     <td><?php echo $v['sort_order'] ?></td>

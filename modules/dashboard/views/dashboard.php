@@ -1,11 +1,18 @@
 <?php
 
-require(component_path('dashboard/style_custumizer'));
-
 app_reset_selected_items();
 
-$has_reports_on_dashboard = false;
+//tabs
+echo reports_groups::render_dashboard_tabs();
 
+//dashboard pages
+$page = new dashboard_pages;
+echo $page->render_info_blocks();
+echo $page->render_info_pages();
+
+$has_reports_on_dashboard = $page->has_pages;
+
+//counters
 $reports_counter = new reports_counter;
 $html = $reports_counter->render();
 if(strlen($html))

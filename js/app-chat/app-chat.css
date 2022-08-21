@@ -21,7 +21,7 @@
 	-webkit-border-radius: 3px 3px 0px 0px;
 	border: 0px solid #000000;
 	
-	z-index: 10;
+	z-index: 100;
 }
 
 .modal-body.chat-modal-body{
@@ -160,7 +160,7 @@
 
 .chat-msg-td-attachments{
 	vertical-align: top;
-	padding: 7px 11px 0 5px;
+	padding: 0px 11px 0 5px;
 }
 
 .chat-msg-td-submit{
@@ -183,7 +183,11 @@
 }
 
 .chat-btn-attachments .fa{
-	font-size: 16px;
+	font-size: 16px;	
+}
+
+.chat-btn-attachments input{
+	cursor: pointer;
 }
 
 .chat-msg-item-user-photo{
@@ -310,6 +314,31 @@
     overflow-x: hidden;
     padding: 5px 7px;
 }
+
+.chat-smiles-list{
+	padding-left: 0;
+    list-style: none;
+}
+
+.chat-smile-icon{	
+	cursor:pointer;	
+	margin-bottom: 2px;
+	padding: 0px 3px 0 3px;;		
+}
+.chat-smile-icon .fa{
+	font-size: 16px;
+}
+
+.chat-smiles-list li{
+	display: inline-block;
+    padding: 3px;
+    cursor:pointer;
+    font-size: 16px;
+}
+.chat-smiles-list li:hover{
+	background: #f1f1f1;	
+}
+
 
 @media (max-width: 979px) {
 	.chat-users{

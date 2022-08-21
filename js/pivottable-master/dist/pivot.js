@@ -1047,7 +1047,7 @@
         uiTable = $("<table>", {
           "class": "pvtUi"
         }).attr("cellpadding", 5);
-        rendererControl = $("<td>").css('vertical-align','top');
+        rendererControl = $("<td>").css('vertical-align','top').addClass('pvtRendererTD');
         renderer = $("<select>").addClass('pvtRenderer').addClass('form-control').appendTo(rendererControl).bind("change", function() {
           return refresh();
         });
@@ -1216,7 +1216,7 @@
         $("<td>").addClass('pvtAxisContainer pvtHorizList pvtCols').appendTo(tr1);
         tr2 = $("<tr>").appendTo(uiTable);
         tr2.append($("<td>").addClass('pvtAxisContainer pvtRows').attr("valign", "top"));
-        pivotTable = $("<td>").attr("valign", "top").addClass('pvtRendererArea').appendTo(tr2);
+        pivotTable = $("<td>").attr("valign", "top").attr('colspan','2').addClass('pvtRendererArea').appendTo(tr2);
         if (opts.unusedAttrsVertical === true || unusedAttrsVerticalAutoOverride) {
           uiTable.find('tr:nth-child(1)').prepend(rendererControl);
           uiTable.find('tr:nth-child(2)').prepend(colList);

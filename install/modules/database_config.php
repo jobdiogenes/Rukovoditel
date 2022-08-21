@@ -1,7 +1,7 @@
 
 <h3 class="page-title"><?php echo TEXT_DATABASE_CONFIGURAITON ?></h3>
 
-<?php if($_GET['db_error']) echo '<div class="alert alert-danger">' . urldecode($_GET['db_error']) . '</div>';?>
+<?php if(isset($_GET['db_error'])) echo '<div class="alert alert-danger">' . urldecode($_GET['db_error']) . '</div>';?>
 
 <?php
   $params = array('db_host'=>'localhost','db_port'=>'','db_username'=>'','db_password'=>'','db_name'=>'');

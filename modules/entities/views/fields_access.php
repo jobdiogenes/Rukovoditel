@@ -6,7 +6,7 @@
 <?php echo input_hidden_tag('ui_accordion_active',0) ?>
 <?php
   $fields_list = array();
-  $fields_query = db_query("select f.*, t.name as tab_name,if(f.type in ('fieldtype_id','fieldtype_date_added','fieldtype_created_by'),-1,t.sort_order) as tab_sort_order from app_fields f, app_forms_tabs t where f.type not in ('fieldtype_action','fieldtype_parent_item_id') and f.entities_id='" . db_input($_GET['entities_id']) . "' and f.forms_tabs_id=t.id order by tab_sort_order, t.name, f.sort_order, f.name");
+  $fields_query = db_query("select f.*, t.name as tab_name,if(f.type in ('fieldtype_id','fieldtype_date_added','fieldtype_created_by','fieldtype_date_updated'),-1,t.sort_order) as tab_sort_order from app_fields f, app_forms_tabs t where f.type not in ('fieldtype_action') and f.entities_id='" . db_input($_GET['entities_id']) . "' and f.forms_tabs_id=t.id order by tab_sort_order, t.name, f.sort_order, f.name");
   while($v = db_fetch_array($fields_query))
   {
     $fields_list[$v['id']] = array(
@@ -53,7 +53,7 @@
     {
       $value = (isset($access_schema[$id]) ? $access_schema[$id] : 'yes');
       
-      $access_choices = (in_array($field['type'],array('fieldtype_id','fieldtype_date_added','fieldtype_created_by')) ? $access_choices_internal : $access_choices_default);
+      $access_choices = (in_array($field['type'],array('fieldtype_id','fieldtype_date_added','fieldtype_date_updated','fieldtype_created_by')) ? $access_choices_internal : $access_choices_default);
       
       $html .= '
         <tr>

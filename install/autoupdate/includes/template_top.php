@@ -5,8 +5,10 @@
   require('../../config/database.php');
           
   include('includes/database.php');
+  
+  if(!defined('DB_SERVER_PORT')) define('DB_SERVER_PORT','');
       
-  db_connect(DB_SERVER, DB_SERVER_USERNAME, DB_SERVER_PASSWORD, DB_DATABASE);
+  db_connect(DB_SERVER, DB_SERVER_USERNAME, DB_SERVER_PASSWORD, DB_DATABASE, DB_SERVER_PORT);
   
   $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
     

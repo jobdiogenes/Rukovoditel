@@ -13,7 +13,16 @@ class fieldtype_mapbbcode
 	{
 		$cfg = array();		
 		$cfg[] = array('title'=>TEXT_DEFAULT_POSITION, 'name'=>'default_position','type'=>'input','tooltip'=>TEXT_DEFAULT_POSITION_TIP,'params'=>array('class'=>'form-control input-medium'));
-		$cfg[] = array('title'=>TEXT_DEFAULT_ZOOM, 'name'=>'default_zoom','type'=>'input','tooltip'=>TEXT_DEFAULT_ZOOM_TIP,'params'=>array('class'=>'form-control input-xsmall'));
+		
+		$choices = [];
+		for($i=3;$i<=18;$i++)
+		{
+			$choices[$i] = $i;
+		}
+		
+		$cfg[] = array('title'=>TEXT_DEFAULT_ZOOM, 'name'=>'default_zoom','type'=>'dropdown','choices'=>$choices,'default'=>8,'params'=>array('class'=>'form-control input-small'));
+		
+		$cfg[] = array('title'=>TEXT_HIDE_COORDINATES_IN_FORM, 'name'=>'hide_coordinates','type'=>'checkbox');
 				
 		return $cfg;
 	}
@@ -25,15 +34,20 @@ class fieldtype_mapbbcode
 		$attributes = array('rows'=>'3',
 				'class'=>'form-control input-xlarge ' .  ($field['is_heading']==1 ? ' autofocus':'') . ' fieldtype_mapbbcode field_' . $field['id'] . ($field['is_required']==1 ? ' required':''));
 
+		if($cfg->get('hide_coordinates')==1)
+		{
+		    $attributes['style']='display:none';
+		}
+		
 		$html = textarea_tag('fields[' . $field['id'] . ']',$obj['field_' . $field['id']],$attributes);
-						
+										
 		$map_id = $field['id'];
 		
 		$map_params = array();
 		
 		if(strlen($cfg->get('default_position'))>0)
 		{
-			$map_params[] = 'defaultPosition: [' . $cfg->get('default_position') . ']'; 
+			$map_params[] = 'defaultPosition: [' . trim(preg_replace('/ +/',',',$cfg->get('default_position'))) . ']'; 
 		}
 		
 		if(strlen($cfg->get('default_zoom'))>0)
@@ -41,8 +55,16 @@ class fieldtype_mapbbcode
 			$map_params[] = 'defaultZoom: ' . $cfg->get('default_zoom') ;
 		}
 		
-		$html .= '
-				<a href="javascript: mapbb' . $map_id . '_edit();"><i class="fa fa-map-marker" aria-hidden="true"></i> ' . TEXT_OPEN_MAP_EDITOR . '</a>
+		if($cfg->get('hide_coordinates')==1)
+		{
+		    $html .= '<a class="btn btn-default" href="javascript: mapbb' . $map_id . '_edit();"><i class="fa fa-map-marker" aria-hidden="true"></i> ' . TEXT_OPEN_MAP_EDITOR . '</a>';
+		}
+		else
+		{
+		    $html .= '<a href="javascript: mapbb' . $map_id . '_edit();"><i class="fa fa-map-marker" aria-hidden="true"></i> ' . TEXT_OPEN_MAP_EDITOR . '</a>';
+		}
+		
+		$html .= '				
 				<div id="mapbb' . $map_id . '_edit"></div>						
 				<script>
 					var mapBB' . $map_id . ' = "";	

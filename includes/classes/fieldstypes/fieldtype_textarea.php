@@ -12,13 +12,17 @@ class fieldtype_textarea
   function get_configuration()
   {
     $cfg = array();
-    $cfg[] = array('title'=>TEXT_ALLOW_SEARCH, 'name'=>'allow_search','type'=>'checkbox','tooltip_icon'=>TEXT_ALLOW_SEARCH_TIP);
+    
     $cfg[] = array('title'=>TEXT_WIDHT, 
                    'name'=>'width',
                    'type'=>'dropdown',
                    'choices'=>array('input-small'=>TEXT_INPTUT_SMALL,'input-medium'=>TEXT_INPUT_MEDIUM,'input-large'=>TEXT_INPUT_LARGE,'input-xlarge'=>TEXT_INPUT_XLARGE),
                    'tooltip'=>TEXT_ENTER_WIDTH,
                    'params'=>array('class'=>'form-control input-medium'));
+    
+    $cfg[] = array('title'=>TEXT_ALLOW_SEARCH, 'name'=>'allow_search','type'=>'checkbox','tooltip_icon'=>TEXT_ALLOW_SEARCH_TIP);
+    
+    $cfg[] = array('title'=>TEXT_HIDE_FIELD_IF_EMPTY, 'name'=>'hide_field_if_empty','type'=>'checkbox','tooltip_icon'=>TEXT_HIDE_FIELD_IF_EMPTY_TIP);
                              
     return $cfg;
   }

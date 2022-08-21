@@ -13,6 +13,43 @@
     </div>			
   </div>
   
+  <div class="form-group">
+  	<label class="col-md-3 control-label" for="CFG_RESIZE_IMAGES"><?php echo TEXT_ENCRYPT_FILE_NAME ?></label>
+    <div class="col-md-9">	
+  	  <?php echo select_tag('CFG[ENCRYPT_FILE_NAME]',$default_selector,CFG_ENCRYPT_FILE_NAME,array('class'=>'form-control input-small')); ?>
+  	  <?php echo tooltip_text(TEXT_ENCRYPT_FILE_NAME_TIP) ?>
+    </div>			
+  </div>
+  
+<?php 
+$choices = [];
+
+$choices[''] = TEXT_NONE;
+$fields_query = db_query("select f.id,f.name, e.name as entity_name from app_fields f, app_entities e where e.id=f.entities_id and type in ('fieldtype_attachments', 'fieldtype_image','fieldtype_image_ajax','fieldtype_input_file')  order by e.sort_order, e.name, f.name");
+while($fields = db_fetch_array($fields_query))
+{
+	$choices[$fields['entity_name']][$fields['id']] = $fields['name']; 
+}
+?>  
+  
+  <div class="form-group">
+  	<label class="col-md-3 control-label" for="CFG_PUBLIC_ATTACHMENTS"><?php echo TEXT_ALLOW_PUBLIC_ACCESS ?></label>
+    <div class="col-md-9">	
+  	  <?php echo select_tag('CFG[PUBLIC_ATTACHMENTS][]',$choices,CFG_PUBLIC_ATTACHMENTS,array('class'=>'form-control input-xlarge chosen-select','multiple'=>true)); ?>
+  	  <?php echo tooltip_text(TEXT_PUBLIC_ATTACHMENTS_TIP) ?>
+    </div>			
+  </div>
+  
+<h3 class="form-section"></h3>
+
+  <div class="form-group">
+  	<label class="col-md-3 control-label" for="CFG_CREATE_ATTACHMENTS_PREVIEW"><?php echo TEXT_CREATE_ATTACHMENTS_PREVIEW ?></label>
+    <div class="col-md-9">	
+  	  <?php echo select_tag('CFG[CREATE_ATTACHMENTS_PREVIEW]',$default_selector,CFG_CREATE_ATTACHMENTS_PREVIEW,array('class'=>'form-control input-small')); ?>
+  	  <?php echo tooltip_text(TEXT_CREATE_ATTACHMENTS_PREVIEW_TIP . '<br>' . TEXT_FOLDER . ': ' . DIR_FS_ATTACHMENTS_PREVIEW) ?>
+    </div>			
+  </div>
+
 <h3 class="form-section"></h3>
   
   <div class="form-group">

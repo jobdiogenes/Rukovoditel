@@ -1,5 +1,14 @@
 <?php
+
+//check if logged user is guest
+if(guest_login::is_guest())
+{
+    redirect_to('dashboard/');
+}
+
 $current_entity_id = 1;
+
+$entity_cfg = new entities_cfg($current_entity_id);
 
 $user_query = db_query("select e.* " . fieldtype_formula::prepare_query_select(1, '') . " from app_entity_1 e where e.id='" . db_input($app_logged_users_id) . "' and e.field_5=1");
 $obj = db_fetch_array($user_query);
@@ -15,33 +24,39 @@ switch($app_module_action)
     break;
   case 'update':
   
+      //chck form token
+      app_check_form_token();
+      
       $msg = array();
       
       //check POST data for user form
-      if(strlen($_POST['fields'][9])==0)
-      {
-        $msg[] = TEXT_ERROR_USEREMAL_EMPTY;
-      }
+      if(isset($_POST['fields'][9]))
+	      if(strlen($_POST['fields'][9])==0)
+	      {
+	        $msg[] = TEXT_ERROR_USEREMAL_EMPTY;
+	      }
       
-      if(CFG_ALLOW_CHANGE_USERNAME==1)
-      {
-        if(strlen($_POST['fields'][12])==0)
-        {
-          $msg[] = TEXT_ERROR_USERNAME_EMPTY;
-        }
-      }
+      if(isset($_POST['fields'][12]))
+	      if(CFG_ALLOW_CHANGE_USERNAME==1)
+	      {
+	        if(strlen($_POST['fields'][12])==0)
+	        {
+	          $msg[] = TEXT_ERROR_USERNAME_EMPTY;
+	        }
+	      }
       
-      if(strlen($_POST['fields'][9])>0 and CFG_ALLOW_REGISTRATION_WITH_THE_SAME_EMAIL==0)
-      {
-        $check_query = db_query("select count(*) as total from app_entity_1 where field_9='" . db_input($_POST['fields'][9]) . "'  and id!='" . db_input($app_logged_users_id) . "'");
-        $check = db_fetch_array($check_query);
-        if($check['total']>0)
-        {
-          $msg[] = TEXT_ERROR_USEREMAL_EXIST;
-        }
-      }
+      if(isset($_POST['fields'][9]))
+	      if(strlen($_POST['fields'][9])>0 and CFG_ALLOW_REGISTRATION_WITH_THE_SAME_EMAIL==0)
+	      {
+	        $check_query = db_query("select count(*) as total from app_entity_1 where field_9='" . db_input($_POST['fields'][9]) . "'  and id!='" . db_input($app_logged_users_id) . "'");
+	        $check = db_fetch_array($check_query);
+	        if($check['total']>0)
+	        {
+	          $msg[] = TEXT_ERROR_USEREMAL_EXIST;
+	        }
+	      }
       
-      if(CFG_ALLOW_CHANGE_USERNAME==1)
+      if(CFG_ALLOW_CHANGE_USERNAME==1 and isset($_POST['fields'][12]))
       {
         if(strlen($_POST['fields'][12])>0)
         {
@@ -64,6 +79,7 @@ switch($app_module_action)
         redirect_to('users/account'); 
       }
             
+      if(isset($_POST['fields']))
       $fields_values_cache = items::get_fields_values_cache($_POST['fields'],array($current_entity_id),$current_entity_id);
       
       $fields_access_schema = users::get_fields_access_schema($current_entity_id,$app_user['group_id']);
@@ -74,7 +90,7 @@ switch($app_module_action)
       $sql_data = array();
       
       
-      $excluded_fileds_types = "'fieldtype_user_accessgroups','fieldtype_user_status','fieldtype_user_skin'";
+      $excluded_fileds_types = "'fieldtype_user_accessgroups','fieldtype_user_status','fieldtype_user_skin','fieldtype_user_last_login_date'";
                           
       if(CFG_ALLOW_CHANGE_USERNAME==0)
       {
@@ -112,10 +128,16 @@ switch($app_module_action)
         $choices_values->prepare($process_options);
       }   
       
-      db_perform('app_entity_' . $current_entity_id,$sql_data,'update',"id='" . db_input($app_logged_users_id) . "'");
+      if(count($sql_data))
+      {
+          db_perform('app_entity_' . $current_entity_id,$sql_data,'update',"id='" . db_input($app_logged_users_id) . "'");
+      }
       
       //insert choices values for fields with multiple values
       $choices_values->process($app_logged_users_id);
+      
+      //autoupdate all field types
+      fields_types::update_items_fields($current_entity_id, $app_logged_users_id);
       
       //set user configuration options
       $cfg = array('disable_notification','disable_internal_notification','disable_highlight_unread');
@@ -123,6 +145,16 @@ switch($app_module_action)
       {      		
       	$app_users_cfg->set($key,(isset($_POST['cfg'][$key]) ? $_POST['cfg'][$key] : ''));
       }
+      
+      if(is_ext_installed())
+      {
+	      //subscribe
+	      $modules = new modules('mailing');
+	      $mailing = new mailing($current_entity_id, $app_logged_users_id);
+	      $mailing->update($item_info);
+      }
+      
+      email_verification::check_if_user_email_is_updated();
             
       $alerts->add(TEXT_ACCOUNT_UPDATED,'success');
       
@@ -191,7 +223,7 @@ switch($app_module_action)
     	//chck form token
     	app_check_form_token();
     			
-    	echo items::check_unique(_get::int('entities_id'),_post::int('fields_id'),$_POST['fields_value']);
+    	echo items::check_unique(_get::int('entities_id'),_post::int('fields_id'),$_POST['fields_value'],$app_user['id']);
     			
    		exit();
    		break;

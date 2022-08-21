@@ -16,7 +16,7 @@ if(!$reports_info = db_fetch_array($reports_info_query))
                     );
   db_perform('app_reports',$sql_data);
   $id = db_insert_id();
-  $reports_info = db_find(app_reports,$id);
+  $reports_info = db_find('app_reports',$id);
 }  
 
 switch($app_module_action)

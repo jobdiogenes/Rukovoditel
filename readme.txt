@@ -6,10 +6,10 @@ INSTALLATION
 
   Rukovoditel is web application, and it means that you have to have a web server.
   Simply go to your Rukovoditel web directory and use installer.
-  Read more http://blog.rukovoditel.net/how-to-install-rukovoditel-on-a-virtual-hosting/
+  Read more https://docs.rukovoditel.net/index.php?p=6
   
   Install Rukovoditel on local pc
-  http://blog.rukovoditel.net/how-simple-install-rukovoditel-on-local-pc/
+  https://docs.rukovoditel.net/index.php?p=5
 
 SUPPORT
 

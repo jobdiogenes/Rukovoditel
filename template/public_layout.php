@@ -5,39 +5,40 @@
 <html lang="<?php echo APP_LANGUAGE_SHORT_CODE ?>" dir="<?php echo APP_LANGUAGE_TEXT_DIRECTION ?>" class="no-js">
 <!--<![endif]-->
 <!-- BEGIN HEAD -->
-<head>
+<head>    
 <meta charset="utf-8"/>
+<meta name = "robots" content = "noindex,nofollow">
 <title><?php echo $app_title ?></title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport"/>
 <meta content="" name="description"/>
-<meta content="www.rukovoditel.net" name="author"/>
+<?php echo app_author_text() ?>
 <meta name="MobileOptimized" content="320">
 
 
 <!-- BEGIN GLOBAL MANDATORY STYLES -->
 <link href="template/plugins/font-awesome/css/font-awesome.min.css?v=4.7.0" rel="stylesheet" type="text/css"/>
+<link href="template/plugins/line-awesome/css/line-awesome.min.css?v=1.3.0" rel="stylesheet" type="text/css"/>
 <link href="template/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
 <link href="template/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
 <!-- END GLOBAL MANDATORY STYLES -->
 <!-- BEGIN PAGE LEVEL STYLES -->
 <link href="template/plugins/jquery-ui/jquery-ui-1.10.3.custom.min.css" rel="stylesheet"/>
-<link rel="stylesheet" type="text/css" href="template/plugins/select2/select2_conquer.css"/>
 <link href="template/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet" type="text/css"/>
 <link href="template/plugins/bootstrap-modal/css/bootstrap-modal.css" rel="stylesheet" type="text/css"/>
 <link rel="stylesheet" type="text/css" href="template/plugins/bootstrap-datepicker/css/datepicker.css"/>
-<link rel="stylesheet" type="text/css" href="template/plugins/bootstrap-datetimepicker/css/datetimepicker.css"/>
+<link rel="stylesheet" type="text/css" href="template/plugins/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.css"/>
 <!-- END PAGE LEVEL SCRIPTS -->
 <!-- BEGIN THEME STYLES -->
 <link href="template/css/style-conquer.css" rel="stylesheet" type="text/css"/>
 <link href="template/css/style.css?v=2" rel="stylesheet" type="text/css"/>
 <link href="template/css/style-responsive.css?v=2" rel="stylesheet" type="text/css"/>
 <link href="template/css/plugins.css" rel="stylesheet" type="text/css"/>
-<link rel="stylesheet" type="text/css" href="template/plugins/bootstrap-colorpicker/css/colorpicker.css"/>
-<link rel="stylesheet" type="text/css" href="js/simple-color-picker/colorPicker.css"/>
 <link href="js/uploadifive/uploadifive.css" rel="stylesheet" media="screen">
 <link href="js/chosen/chosen.css" rel="stylesheet" media="screen">
 <link rel="stylesheet" type="text/css" href="template/plugins/jquery-nestable/jquery.nestable.css"/>
+<link rel="stylesheet" type="text/css" href="js/select2/dist/css/select2.min.css" />
+<link rel="stylesheet" type="text/css" href="js/xdsoft_datetimepicker/2.5.21/jquery.datetimepicker.css">
 
 <?php require('js/mapbbcode-master/includes.css.php'); ?>
 
@@ -50,6 +51,10 @@
 <script type="text/javascript" src="js/validation/jquery.validate.min.js"></script>
 <script type="text/javascript" src="js/validation/additional-methods.min.js"></script>
 <?php require('js/validation/validator_messages.php'); ?> 
+
+<!--izoAutocomplete-->
+<link rel="stylesheet" type="text/css" href="js/izoAutocomplete/1.0/izoAutocomplete.css"/>
+<script type="text/javascript" src="js/izoAutocomplete/1.0/izoAutocomplete.js"></script>
 
 <!-- Add fancyBox -->
 <link rel="stylesheet" href="js/fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
@@ -65,6 +70,7 @@
   var app_language_short_code = '<?php echo APP_LANGUAGE_SHORT_CODE ?>';
   var app_cfg_ckeditor_images = '<?php echo url_for("dashboard/ckeditor_image")?>';
   var app_language_text_direction = '<?php echo APP_LANGUAGE_TEXT_DIRECTION ?>'
+  var app_cfg_drop_down_menu_on_hover = <?php echo CFG_DROP_DOWN_MENU_ON_HOVER ?>;
 
   function keep_session()
 	{
@@ -78,6 +84,7 @@
 </script>
 
 <link rel="stylesheet" type="text/css" href="css/default.css?v=<?php echo PROJECT_VERSION ?>"/>
+<?php echo app_include_custom_css() ?>
 
 <?php echo render_login_page_background() ?>
 <?php echo app_recaptcha::render_js() ?>
@@ -90,7 +97,7 @@
 </script>
 
 <!-- END THEME STYLES -->
-<link rel="shortcut icon" href="favicon.ico"/>
+<?php echo app_favicon() ?>
 </head>
 <!-- BEGIN BODY -->
 <body class="login public-layout page-scale-reduced">
@@ -145,7 +152,7 @@
 <!-- BEGIN COPYRIGHT -->
 <div class="copyright">
 	 <?php echo (strlen(CFG_APP_COPYRIGHT_NAME)>0 ? '&copy; ' . CFG_APP_COPYRIGHT_NAME . ' ' . date('Y') . '<br>': '') ?>
-    <small><?php echo TEXT_POWERED_BY ?>&nbsp;<a target="_blank" href="https://www.rukovoditel.net" title="<?php echo TEXT_POWERED_BY_TITLE ?>">Rukovoditel</a></small>
+    <?php echo app_powered_by_text() ?>
 </div>
 <!-- END COPYRIGHT -->
 
@@ -159,31 +166,36 @@
 <!-- IMPORTANT! Load jquery-ui-1.10.3.custom.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
 <script src="template/plugins/jquery-ui/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
 <script src="template/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="template/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.js?v=2.2.1" type="text/javascript"></script>
+<script src="template/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.js?v=2.2.2" type="text/javascript"></script>
 <script src="template/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
 <script src="template/plugins/jquery.blockui.min.js" type="text/javascript"></script>
 <script src="template/plugins/jquery.cokie.min.js" type="text/javascript"></script>
 <script src="template/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
 <!-- END CORE PLUGINS -->
 <!-- BEGIN PAGE LEVEL PLUGINS -->
-<script type="text/javascript" src="template/plugins/ckeditor/ckeditor.js?v=4.5.7"></script>
-<script type="text/javascript" src="template/plugins/select2/select2.min.js"></script>
+<script type="text/javascript" src="template/plugins/ckeditor/4.16.2/ckeditor.js"></script>
 <script type="text/javascript" src="template/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-<script type="text/javascript" src="template/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+<script type="text/javascript" src="template/plugins/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="template/plugins/bootstrap-modal/js/bootstrap-modalmanager.js" type="text/javascript"></script>
 <script type="text/javascript" src="template/plugins/bootstrap-modal/js/bootstrap-modal.js" type="text/javascript"></script>
-<script type="text/javascript" src="template/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.js"></script>
 <script type="text/javascript" src="template/plugins/jquery-nestable/jquery.nestable.js"></script>
-<script type="text/javascript" src="js/simple-color-picker/jquery.colorPicker.js"></script>
+<script type="text/javascript" src="template/plugins/bootstrap-wizard/jquery.bootstrap.wizard.js"></script>
 <script type="text/javascript" src="js/uploadifive/jquery.uploadifive.min.js?v=1.2.2"></script>
 <script type="text/javascript" src="js/chosen/chosen.jquery.min.js"></script>
 <script type="text/javascript" src="js/chosen/jquery-chosen-sortable.min.js"></script>
-<script type="text/javascript" src="js/highcharts/highcharts.js"></script>
-<script type="text/javascript" src="js/highcharts/modules/exporting.js"></script>
 <script type="text/javascript" src="js/maskedinput/jquery.maskedinput.js"></script>
 <script type="text/javascript" src="js/totop/jquery.ui.totop.js" ></script>
 <script type="text/javascript" src="js/jquery-number-master/jquery.number.min.js" ></script>
-<script type="text/javascript" src="template/plugins/ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="template/plugins/ckeditor/4.16.2/plugins/codesnippet/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="js/select2/dist/js/select2.full.js" ></script>
+<script type="text/javascript" src="js/jquery.taboverride-master/build/taboverride.min.js" ></script>
+<script type="text/javascript" src="js/jquery.taboverride-master/build/jquery.taboverride.min.js" ></script>
+<script type="text/javascript" src="js/scannerdetection/1.1.2/jquery.scannerdetection.js" ></script>
+<script type="text/javascript" src="js/inputmask/5.0.5/jquery.inputmask.min.js" ></script>
+<script type="text/javascript" src="js/izoColorPicker/1.0/izoColorPicker.js"></script>
+<script type="text/javascript" src="js/treetable-master/jquery-treetable.js" ></script>
+<script type="text/javascript" src="js/xdsoft_datetimepicker/2.5.21/jquery.datetimepicker.full.js" ></script>
+<script type="text/javascript" src="js/jquery.zeninput/jquery.zeninput.js" ></script>
 <!-- END PAGE LEVEL PLUGINS -->
 
 <?php require('js/mapbbcode-master/includes.js.php'); ?>
@@ -200,6 +212,13 @@
 <!-- END PAGE LEVEL SCRIPTS -->
 
 <script>
+    
+    var xdatetimepicker_i18n ={
+            months: [<?php echo TEXT_DATEPICKER_MONTHS ?>],
+            dayOfWeekShort: [<?php echo TEXT_DATEPICKER_DAYSMIN ?>],
+            dayOfWeek: [<?php echo TEXT_DATEPICKER_DAYS ?>]
+        }    
+    
 jQuery(document).ready(function() {     
 
 	$.fn.datepicker.dates['en'] = {

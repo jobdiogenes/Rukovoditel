@@ -41,8 +41,11 @@ class maintenance_mode
 		{
 			if(CFG_MAINTENANCE_MODE==1 and $app_user['group_id']!=0)
 			{
-				$alerts->add(TEXT_ACCESS_FORBIDDEN,'error');	
-				redirect_to('users/login&action=logoff');
+				if(!in_array($app_user['id'],explode(',',CFG_MAINTENANCE_ALLOW_LOGIN_FOR_USERS)))
+				{
+					$alerts->add(TEXT_ACCESS_FORBIDDEN,'error');	
+					redirect_to('users/login&action=logoff');
+				}
 			}
 		}
 	}

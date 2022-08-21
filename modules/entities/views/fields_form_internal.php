@@ -29,7 +29,7 @@
     	  <?php echo input_tag('short_name',$obj['short_name'],array('class'=>'form-control input-small')) ?>        
       </div>			
     </div>
-<?php if($obj['type']!='fieldtype_parent_item_id'): ?>    
+<?php if(!in_array($obj['type'],['fieldtype_parent_item_id','fieldtype_date_updated'])): ?>    
    	<div class="form-group" id="is-heading-container">
     	<label class="col-md-3 control-label" for="is_heading"><?php echo tooltip_icon(TEXT_IS_HEADING_INFO) . TEXT_IS_HEADING ?></label>
       <div class="col-md-9">	
@@ -43,7 +43,9 @@
       <div class="col-md-9">	
     	  <?php echo input_tag('sort_order',$obj['sort_order'],array('class'=>'form-control input-xsmall')) ?>        
       </div>			
-    </div>   
+    </div> 
+    
+    <div id="fields_types_configuration"></div>  
              
    </div>
 </div> 
@@ -51,5 +53,41 @@
 <?php echo ajax_modal_template_footer() ?>
 
 </form> 
+
+<script>
+
+  $(function() { 
+                   
+    fields_types_configuration('<?php echo $obj['type'] ?>');
+    
+                                                                              
+  });
+
+  
+function fields_types_configuration(field_type)
+{ 
+    
+  $('#fields_types_configuration').html('<div class="ajax-loading"></div>');
+   
+  $('#fields_types_configuration').load('<?php echo url_for("entities/fields_configuration")?>',{field_type:field_type, id:'<?php echo $obj["id"] ?>',entities_id:'<?php echo $_GET["entities_id"]?>'},function(response, status, xhr) {
+    if (status == "error") {                                 
+       $(this).html('<div class="alert alert-error"><b>Error:</b> ' + xhr.status + ' ' + xhr.statusText+'<div>'+response +'</div></div>')                    
+    }
+    else
+    {
+      appHandleUniform();
+      
+      jQuery(window).resize();      
+    }    
+  });  
+   
+}  
+
+
+
+
+
+  
+</script>  
 
  

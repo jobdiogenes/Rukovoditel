@@ -8,6 +8,7 @@
   echo button_tag(TEXT_BUTTON_ADD_NEW_REPORT_FILTER,url_for('entities/parent_infopage_filters_form','reports_id=' . $reports_info['id'] . '&entities_id=' . $_GET['entities_id'] )) . ' ' 
 			. button_tag(TEXT_BUTTON_CONFIGURE_SORTING,url_for('reports/sorting','reports_id=' . $reports_info['id'] . '&redirect_to=parent_infopage_filters'))  . ' '
 			. button_tag(TEXT_NAV_LISTING_CONFIG,url_for('reports/configure','reports_id=' . $reports_info['id'] . '&redirect_to=parent_infopage_filters'))
+			. ' ' . TEXT_REPORT . ': ' . $reports_info['id'] 
 ?>
 
 <div class="table-scrollable">

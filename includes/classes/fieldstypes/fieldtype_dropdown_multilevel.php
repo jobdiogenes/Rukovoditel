@@ -73,19 +73,21 @@ class fieldtype_dropdown_multilevel
 		//use global lists if exsit    
     if($cfg->get('use_global_list')>0)
     {     
-    	$default_id = global_lists::get_choices_default_id($cfg->get('use_global_list'));
+        $default_id = $default_choices_id = global_lists::get_choices_default_id($cfg->get('use_global_list'));
     	
-      $choices_query = db_query("select * from app_global_lists_choices where lists_id = '" . db_input($cfg->get('use_global_list')). "' and parent_id=0 order by sort_order, name");
+      $choices_query = db_query("select * from app_global_lists_choices where lists_id = '" . db_input($cfg->get('use_global_list')). "' and parent_id=0 and (is_active=1 " . (strlen($obj['field_' . $field['id']]) ? " or id in (" . implode(',',array_map(function($v){return (int)$v; },explode(',',$obj['field_' . $field['id']]))) . ")":'') . ") order by sort_order, name");
       while($v = db_fetch_array($choices_query))
       {
       	$choices[$v['id']] = $v['name'];
+      	
+      	if(!$default_id) $default_id=$v['id'];
       }
     }
     else
     {  
-    	$default_id = fields_choices::get_default_id($field['id']);
+    	$default_id = $default_choices_id = fields_choices::get_default_id($field['id']);
     	
-      $choices_query = db_query("select * from app_fields_choices where fields_id = '" . db_input($field['id']). "' and parent_id=0 order by sort_order, name");      
+      $choices_query = db_query("select * from app_fields_choices where fields_id = '" . db_input($field['id']). "' and parent_id=0 and (is_active=1 " . (strlen($obj['field_' . $field['id']]) ? " or id in (" . implode(',',array_map(function($v){return (int)$v; },explode(',',$obj['field_' . $field['id']]))) . ")":'') . ") order by sort_order, name");      
       while($v = db_fetch_array($choices_query))
       {
       	if($display_choices_values==1)
@@ -94,6 +96,8 @@ class fieldtype_dropdown_multilevel
       	}
       	
       	$choices[$v['id']] = $v['name'];
+      	
+      	if(!$default_id) $default_id=$v['id'];
       }
     }
               
@@ -104,14 +108,14 @@ class fieldtype_dropdown_multilevel
     $choices_tree_level = count($level_settings)-1;
                
     $values_array = ( strlen($obj['field_' . $field['id']]) ? explode(',', $obj['field_' . $field['id']]) : array());
-    
+                
     if(!count($values_array) and $default_id)
     {
     	$values_array = array($default_id);
     }
     
     $tooltip_array = (strlen($field['tooltip']) ? preg_split("/\\r\\n|\\r|\\n/",$field['tooltip']):array());
-    
+            
     $html = '';
     for($level =0; $level<=$choices_tree_level;$level++)
     {
@@ -134,10 +138,19 @@ class fieldtype_dropdown_multilevel
     		{
     			$choices = array(''=>trim($level_settings_array[1]))+$choices;
     		}
-    		    		    		
-    		$field_value = (isset($values_array[$level]) ? $values_array[$level] :'');
+    		
+    		//reset default value is there is Please Select option
+    		if(isset($level_settings_array[1]) and !strlen($obj['field_' . $field['id']]) and !$default_choices_id)
+    		{
+    		    $field_value='';
+    		}
+    		else
+    		{    		    		    		
+    		    $field_value = (isset($values_array[$level]) ? $values_array[$level] :'');
+    		}
     	}
     	
+    	    	
     	$field_tooltip = '';
     	if(isset($tooltip_array[$level]))
     	{
@@ -217,8 +230,8 @@ class fieldtype_dropdown_multilevel
   			$field_id = $field['id'] . 'L'. $level;
   			
   			$html .= '
-			    <li style="cursor: pointer" class="insert_to_template_description">
-			      {#' . $field_id .':'. trim($level_name) . '}
+			    <li>
+			      <a href="#" class="insert_to_template_description">{#' . $field_id .':'. trim($level_name) . '}</a>
 			    </li>';
   				
   		}
@@ -226,8 +239,8 @@ class fieldtype_dropdown_multilevel
   	else
   	{
   		$html .= '
-	    <li style="cursor: pointer" class="insert_to_template_description">
-	      {#' . $field['id'] .':'. $field['name'] . '}
+	    <li>
+	      <a href="#" class="insert_to_template_description">{#' . $field['id'] .':'. $field['name'] . '}</a>
 	    </li>';
   	}
 
@@ -265,10 +278,14 @@ class fieldtype_dropdown_multilevel
   	}
   }  
     
-  static function output_listing_heading($field, $is_export=false)
+  static function output_listing_heading($field, $is_export=false, $listing=false)
   {
   	global $listing_order_fields_id, $listing_order_fields, $listing_order_clauses;
   	
+  	$listing_order_action = '';
+  	
+  	if(!is_array($listing_order_fields_id)) $listing_order_fields_id = [];
+  	      	
   	$cfg = new fields_types_cfg($field['configuration']);
   
   	$html = '';
@@ -295,7 +312,10 @@ class fieldtype_dropdown_multilevel
   				$listing_order_clauses[$field_id] = 'asc';
   			}
   			
-  			$listing_order_action = 'onClick="listing_order_by(\'' . $_POST['listing_container'] . '\',\'' . $field_id . '\',\'' . (($listing_order_clauses[$field_id]=='asc' and in_array($field_id,$listing_order_fields_id)) ? 'desc':'asc'). '\')"';
+  			if(isset($_POST['listing_container']))
+  			{
+  			    $listing_order_action = 'onClick="listing_order_by(\'' . $_POST['listing_container'] . '\',\'' . $field_id . '\',\'' . (($listing_order_clauses[$field_id]=='asc' and in_array($field_id,$listing_order_fields_id)) ? 'desc':'asc'). '\')"';
+  			}
   			
   			$listing_order_css_class = 'class="' . $th_css_class . ' listing_order ' . (in_array($field_id,$listing_order_fields_id) ? 'listing_order_' . $listing_order_clauses[$field_id]:'') . '"';
  				
@@ -306,7 +326,7 @@ class fieldtype_dropdown_multilevel
   			else
   			{
 	  			$html .='
-	              <th ' . $listing_order_action  . ' ' . $listing_order_css_class . '><div>' . $level_name . '</div></th>
+	              <th ' . $listing_order_action  . ' ' . $listing_order_css_class . ($listing ? $listing->get_listing_col_width($field_id) : '') . ' data-field-id="' . $field_id . '"><div>' . $level_name . '</div></th>
 	          ';
   			}
   		}
@@ -320,7 +340,7 @@ class fieldtype_dropdown_multilevel
   		else
   		{
 	  		$listing_order_css_class = 'class="' . $th_css_class . ' listing_order ' . (isset($listing_order_clauses[$v['id']]) ? 'listing_order_' . $listing_order_clauses[$v['id']]:'') . '"';
-	  		$html = '<th ' . $listing_order_css_class . '><div>' .$field['name'] . '</div></th>';
+	  		$html = '<th ' . $listing_order_css_class . ($listing ? $listing->get_listing_col_width($v['id']) : '') . ' data-field-id="' . $v['id'] . '"><div>' .$field['name'] . '</div></th>';
   		}
   	}
   	
@@ -499,8 +519,8 @@ class fieldtype_dropdown_multilevel
   function get_js_tree_handler($field, $choices_tree_level, $values_array, $display_choices_values='')
   {
   	$cfg = new fields_types_cfg($field['configuration']);
-  	  	
-  	$js_tree = ($cfg->get('use_global_list') ? global_lists::get_js_level_tree($cfg->get('use_global_list')) : fields_choices::get_js_level_tree($field['id'],0,array(),0,$display_choices_values));	
+  	  	  	  	
+  	$js_tree = ($cfg->get('use_global_list') ? global_lists::get_js_level_tree($cfg->get('use_global_list'),0,array(),0,implode(',',$values_array)) : fields_choices::get_js_level_tree($field['id'],0,array(),0,$display_choices_values,implode(',',$values_array)));	
 
   	//echo '<pre>';
   	//print_r($js_tree);

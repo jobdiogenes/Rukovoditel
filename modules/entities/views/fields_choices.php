@@ -2,18 +2,48 @@
 
 <h3 class="page-title"><?php echo   $field_info['name'] . ': '.  TEXT_NAV_FIELDS_CHOICES_CONFIG ?></h3>
 
-<?php echo ($field_info['type']=='fieldtype_autostatus' ? '<p class="note note-info">' . TEXT_FIELDTYPE_AUTOSTATUS_OPTIONS_TIP . '</p>':'')?>
+<?php 
 
-<?php echo button_tag(TEXT_BUTTON_ADD_NEW_VALUE,url_for('entities/fields_choices_form','entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id']),true,array('class'=>'btn btn-primary')) . ' ' . button_tag(TEXT_BUTTON_SORT,url_for('entities/fields_choices_sort','entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id']),true,array('class'=>'btn btn-default')) ?>
+$html = '';
+$extra_buttons = '';
 
-<?php echo ($field_info['type']=='fieldtype_autostatus' ? button_tag('<i class="fa fa-sitemap"></i> ' . TEXT_FLOWCHART,url_for('entities/fields_choices_flowchart','entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id']),false,array('class'=>'btn btn-default')):'') ?>
+switch($field_info['type'])
+{
+	case 'fieldtype_autostatus':
+		$html = '<p class="note note-info">' . TEXT_FIELDTYPE_AUTOSTATUS_OPTIONS_TIP . '</p>';
+		$extra_buttons = button_tag('<i class="fa fa-sitemap"></i> ' . TEXT_FLOWCHART,url_for('entities/fields_choices_flowchart','entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id']),false,array('class'=>'btn btn-default'));
+		break;
+	case 'fieldtype_image_map':
+		$html = '<p class="note note-info">' . TEXT_FIELDTYPE_IMAGE_MAP_OPTIONS_TIP . '</p>';
+		break;
+}
+
+echo $html;
+
+ 
+echo button_tag(TEXT_BUTTON_ADD_NEW_VALUE,url_for('entities/fields_choices_form','entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id']),true,array('class'=>'btn btn-primary')) . ' '; 
+
+echo    '<div class="btn-group">' .
+            button_tag(TEXT_BUTTON_SORT,url_for('entities/fields_choices_sort','entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id']),true,array('class'=>'btn btn-default')) .
+        '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-angle-down"></i></button>
+        <ul class="dropdown-menu" role="menu">
+            <li>
+                    <a href="javascript: open_dialog(\'' . url_for('entities/fields_choices_sort_reset','entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id']) . '\')">' . TEXT_RESET_SORTING . '</a>
+            </li>
+        </ul>
+        </div>';
+        
+?>
+
+<?php echo $extra_buttons ?>
 
 <div class="table-scrollable">
-<table class="table table-striped table-bordered table-hover">
+<table class="tree-table table table-striped table-bordered table-hover">
 <thead>
   <tr>
-    <th>Action</th>
+    <th><?php echo TEXT_ACTION?></th>
     <th>#</th>    
+    <th><?php echo TEXT_IS_ACTIVE ?></th>
     <th width="100%"><?php echo TEXT_NAME ?></th>            
 
 <?php if($field_info['type']!='fieldtype_autostatus'): ?>    
@@ -53,8 +83,12 @@ if($field_info['type']=='fieldtype_autostatus')
       echo ' ' . button_icon_edit(url_for('entities/fields_choices_form','id=' . $v['id']. '&entities_id=' . $_GET['entities_id']. '&fields_id=' . $_GET['fields_id']));
       echo ' ' . button_icon(TEXT_BUTTON_CREATE_SUB_VALUE,'fa fa-plus',url_for('entities/fields_choices_form','parent_id=' . $v['id']. '&entities_id=' . $_GET['entities_id']. '&fields_id=' . $_GET['fields_id'])); 
   ?></td>
-  <td><?php echo $v['id'] ?></td>  
-  <td><?php echo ($field_info['type']=='fieldtype_autostatus' ? $html : str_repeat('&nbsp;-&nbsp;',$v['level']) . $v['name'])  ?></td>
+  <td><?php echo $v['id'] ?></td> 
+  <td><?php echo render_bool_value($v['is_active']) ?></td> 
+  <td>
+      <?php echo '<div class="tt" data-tt-id="choice_' . $v['id']. '" ' . ($v['parent_id']>0 ? 'data-tt-parent="choice_' . $v['parent_id'] . '"':''). ' data-tt-sort-url="' . url_for('entities/fields_choices_sort','entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id'] . '&parent_id=' . $v['id']) . '"></div>' ?>
+      <?php echo ($field_info['type']=='fieldtype_autostatus' ? $html : $v['name'])  ?>
+  </td>
 
 <?php if($field_info['type']!='fieldtype_autostatus'): ?>  
   <td><?php echo render_bool_value($v['is_default']) ?></td>

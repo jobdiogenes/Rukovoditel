@@ -67,7 +67,20 @@
   
   <div class="tab-pane" id="form_tab_reports_sections">
   	<div><?php echo TEXT_CONFIGURE_DASHBOARD_SECTION_INFO ?></div><br>
-  	<div style="margin-bottom: 15px;"><bubtton type="button" class="btn btn-primary btn-add-reports-section"><?php echo TEXT_ADD_SECTION ?></bubtton></div>
+  	<div style="margin-bottom: 15px;">
+            <div class="btn-group open">
+                <button type="button" class="btn btn-primary btn-add-reports-section" data-columns="2"><?php echo TEXT_ADD_SECTION ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><i class="fa fa-angle-down"></i></button>
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                            <a href="#" class="btn-add-reports-section" data-columns="1"><?php echo TEXT_ONE_COLUMN ?></a>
+                    </li>
+                    <li>
+                            <a href="#" class="btn-add-reports-section" data-columns="2"><?php echo TEXT_TWO_COLUMNS ?></a>
+                    </li>                    
+                </ul>
+            </div>            
+        </div>
   	<div id="reports_sections_list"></div>
   </div>
   
@@ -155,7 +168,7 @@
 	  	$('#reports_sections_list').load("<?php echo url_for('dashboard/reports','action=get_sections&id=' . _get::int('id')) ?>")
 	  	
 	  	$('.btn-add-reports-section').click(function(){
-				$('#reports_sections_list').load("<?php echo url_for('dashboard/reports','action=add_section&id=' . _get::int('id')) ?>")
+				$('#reports_sections_list').load("<?php echo url_for('dashboard/reports','action=add_section&id=' . _get::int('id')) ?>",{columns: $(this).attr('data-columns')})
 		  })		  
 	  	 
 	});  

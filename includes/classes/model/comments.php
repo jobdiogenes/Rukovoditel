@@ -8,10 +8,12 @@ class comments
 				''=>TEXT_NO,
 				'view_create_update_delete'=>TEXT_YES,
 				'view_create'=>TEXT_CREATE_ONLY_ACCESS,
-				'view'=>TEXT_VIEW_ONLY_ACCESS);
+				'view'=>TEXT_VIEW_ONLY_ACCESS,
+                                'view_create_update_delete_full'=>TEXT_FULL_ACCESS,);
 		
 		return $choices;
 	}
+	
 	public static function get_available_filedtypes_in_comments()
 	{
 		
@@ -21,17 +23,26 @@ class comments
 				'fieldtype_input_numeric',
 				'fieldtype_input_numeric_comments',
 				'fieldtype_input_date',
+                                'fieldtype_input_date_extra',
 				'fieldtype_input_datetime',
 				'fieldtype_boolean',
 				'fieldtype_checkboxes',
 				'fieldtype_radioboxes',
 				'fieldtype_dropdown',
+				'fieldtype_dropdown_multiple',
 				'fieldtype_grouped_users',
 				'fieldtype_progress',
 				'fieldtype_textarea',				
 				'fieldtype_users',
-				'fieldtype_entity');
+                                'fieldtype_users_ajax',
+				'fieldtype_entity',				
+				'fieldtype_entity_ajax',
+				'fieldtype_tags',
+				'fieldtype_stages',
+				'fieldtype_time',
+		);
 	}
+	
   public static function get_last_comment_info($entities_id, $items_id,$path, $fields_access_schema)
   {
     global $app_users_cache;
@@ -40,7 +51,7 @@ class comments
     $items_query = db_query($comments_query_sql);
     if($item = db_fetch_array($items_query))
     {              
-      $descripttion = htmlspecialchars(addslashes(strlen($description = strip_tags($item['description']))>255 ? substr($description,0,255) . '...' : $description));
+      $descripttion = htmlspecialchars(strlen($description = strip_tags($item['description']))>255 ? substr($description,0,255) . '...' : $description);
       
       //include attachments
       if(strlen($item['attachments']))
@@ -75,8 +86,8 @@ class comments
       	
       	$html_fields .="
             <tr>
-      				<th style='text-align: left;vertical-align: top; font-size: 11px;'>&bull;&nbsp;" . $field['name'] . ":&nbsp;</th>
-      				<td style='font-size: 11px;'>" . strip_tags(fields_types::output($output_options)). "</td>
+      				<th style='text-align: left;vertical-align: top; font-size: 11px;'>&bull;&nbsp;" . htmlspecialchars($field['name']) . ":&nbsp;</th>
+      				<td style='font-size: 11px;'>" . htmlspecialchars(strip_tags(fields_types::output($output_options))). "</td>
       			</tr>
         ";
       }
@@ -90,7 +101,7 @@ class comments
                  
       if(strlen($descripttion))
       {
-      	return '<sup class="last_comment_info" data-toggle="popover" title="' . format_date_time($item['date_added']) . '" data-content="' . str_replace(array("\n","\r","\n\r"),' ',$descripttion) . '" onClick="location.href=\'' . url_for('items/info','path=' . $path). '\'" >' . $app_users_cache[$item['created_by']]['name'] . '</sup>';;
+          return '<sup class="last_comment_info" data-toggle="popover" title="' . format_date_time($item['date_added']) . '" data-content="' . str_replace(array("\n","\r","\n\r"),' ',$descripttion) . '" onClick="location.href=\'' . url_for('items/info','path=' . $path). '\'" >' . (isset($app_users_cache[$item['created_by']]) ? $app_users_cache[$item['created_by']]['name'] : '') . '</sup>';;
       }      
     }    
     
@@ -103,6 +114,8 @@ class comments
     while($comments = db_fetch_array($comments_query))
     {
       db_query("delete from app_comments_history where comments_id = '" . db_input($comments['id']) . "'");
+      
+      attachments::delete_comments_attachments($comments['id']);
     }
     
     db_query("delete from app_comments where entities_id='" . db_input($entity_id) . "' and items_id='" . db_input($item_id) . "'");
@@ -140,12 +153,14 @@ class comments
         $output_options = array('class'=>$field['type'],
                                 'value'=>$field['fields_value'],
                                 'field'=>$field,                            
-                                'choices_cache'=>$choices_cache,
-                                'path'=>$current_path);
+                                'is_listing' =>true,
+                                'path'=>$current_path,
+        												'is_comments_listing' =>true,
+        );
                                                                         
           
         $html_fields .='                      
-            <tr><th style="text-align: left; font-family:Arial;font-size:13px; vertical-align: top">&bull;&nbsp;' . $field['name'] . ':&nbsp;</th><td style="font-family:Arial;font-size:13px;">' . fields_types::output($output_options). '</td></tr>           
+            <tr><th style="text-align: left; font-family:Arial;font-size:13px; vertical-align: top">&bull;&nbsp;' . fields_types::get_option($field['type'],'name',$field['name']) . ':&nbsp;</th><td style="font-family:Arial;font-size:13px;">' . fields_types::output($output_options). '</td></tr>           
         ';
       }
       
@@ -168,7 +183,7 @@ class comments
       $html .= '
         <tr>
           <td style="vertical-align:top;font-family:Arial;font-size:13px;color:black;padding:2px;border-bottom:1px dashed LightGray">' . auto_link_text($item['description']) . $attachments . $html_fields . '</td>
-          <td align="right" style="vertical-align:top;font-family:Arial;font-size:13px;color:black;padding:2px;border-bottom:1px dashed LightGray;white-space:nowrap;">' . date(CFG_APP_DATETIME_FORMAT,$item['date_added']) . '<br>' . $app_users_cache[$item['created_by']]['name']. '<br>' . render_user_photo($app_users_cache[$item['created_by']]['photo']). '</td>
+          <td align="right" style="vertical-align:top;font-family:Arial;font-size:13px;color:black;padding:2px;border-bottom:1px dashed LightGray;white-space:nowrap;">' . date(CFG_APP_DATETIME_FORMAT,$item['date_added']) . '<br>' . (isset($app_users_cache[$item['created_by']]) ? $app_users_cache[$item['created_by']]['name']. '<br>' . render_user_photo($app_users_cache[$item['created_by']]['photo']) : ''). '</td>
         </tr>
       ';
       

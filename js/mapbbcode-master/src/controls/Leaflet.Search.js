@@ -30,8 +30,8 @@ L.Control.Search = L.Control.extend({
 			.on(link, 'click', L.DomEvent.preventDefault)
 			.on(link, 'click', this._toggle, this);
 
-
-		var form = this._form = document.createElement('form');
+		
+		var form = this._form = document.createElement('div');
 		form.style.display = 'none';
 		form.style.position = 'absolute';
 		form.style.left = '27px';
@@ -40,9 +40,26 @@ L.Control.Search = L.Control.extend({
 		var input = this._input = document.createElement('input');
 		input.style.height = '25px';
 		input.style.border = '1px solid grey';
-		input.style.padding = '0 0 0 10px';
+		input.style.padding = '0 0 0 10px';		
 		form.appendChild(input);
-		L.DomEvent.on(form, 'submit', function() { this._doSearch(input.value); return false; }, this).on(form, 'submit', L.DomEvent.preventDefault);
+		
+		//default code
+		//L.DomEvent.on(form, 'submit', function() { this._doSearch(input.value); return false; }, this).on(form, 'submit', L.DomEvent.preventDefault);
+		
+		
+		//new code to prevet from submit on click enter;
+		L.DomEvent.on(input, 'keydown', function(e) { 
+			if(e.keyCode==13)
+			{
+				//do search
+				this._doSearch(input.value);
+				
+				e.preventDefault();
+			    return false;
+			}
+			
+		},this);
+					
 		container.appendChild(form);
 
 		return container;
@@ -63,9 +80,16 @@ L.Control.Search = L.Control.extend({
 	},
 
 	_nominatimCallback: function( results ) {
-		if( results && results.length > 0 ) {
+		if( results && results.length > 0 ) 
+		{			
 			var bbox = results[0].boundingbox;
-			this._map.fitBounds(L.latLngBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]]));
+			//alert(bbox[0] + ' - ' + bbox[2]+' - '+bbox[1]+ ' - ' +bbox[3])
+			//this._map.fitBounds(L.latLngBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]]));
+			
+			this._map.fitBounds([
+			               [bbox[0], bbox[2]],
+			               [bbox[1], bbox[3]]
+			           ]);
 		}
 		this._collapse();
 	},
@@ -73,6 +97,10 @@ L.Control.Search = L.Control.extend({
 	_callbackId: 0,
 
 	_doSearch: function( query ) {
+		
+		query = query.replace(' ул. ',' ').replace(' ул ',' ').replace(' пер ',' ').replace(' пер. ',' ').replace(' г ',' ').replace(' г. ',' ');
+		//alert(query)
+		
 		var callback = '_l_osmgeocoder_' + this._callbackId++;
 		window[callback] = L.Util.bind(this._nominatimCallback, this);
 		var queryParams = {
@@ -85,7 +113,8 @@ L.Control.Search = L.Control.extend({
 			queryParams.email = this.options.email;
 		if( this._map.getBounds() )
 			queryParams.viewbox = this._map.getBounds().toBBoxString();
-		var url = 'http://nominatim.openstreetmap.org/search' + L.Util.getParamString(queryParams);
+		var url = 'https://nominatim.openstreetmap.org/search' + L.Util.getParamString(queryParams);
+						
 		var script = document.createElement('script');
 		script.type = 'text/javascript';
 		script.src = url;

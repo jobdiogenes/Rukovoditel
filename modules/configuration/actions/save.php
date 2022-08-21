@@ -11,6 +11,17 @@ if(isset($_POST['delete_logo']))
   
 }
 
+if(isset($_POST['delete_favicon']))
+{
+    if(is_file(DIR_FS_UPLOADS . CFG_APP_FAVICON))
+    {
+        unlink(DIR_FS_UPLOADS . CFG_APP_FAVICON);
+    }
+    
+    $_POST['CFG']['APP_FAVICON'] = '';
+    
+}
+
 if(isset($_POST['delete_login_page_background']))
 {
   if(is_file(DIR_FS_UPLOADS . CFG_APP_LOGIN_PAGE_BACKGROUND))
@@ -38,6 +49,7 @@ if(isset($_POST['CFG']))
   {
     $k = 'CFG_' . $k;
         
+    //logo
     if($k=='CFG_APP_LOGO')
     {                                                                            
       if(strlen($_FILES['APP_LOGO']['name'])>0)
@@ -51,6 +63,22 @@ if(isset($_POST['CFG']))
           $v = $filename;
         }
       }      
+    }
+    
+    //favicon
+    if($k=='CFG_APP_FAVICON')
+    {
+        if(strlen($_FILES['APP_FAVICON']['name'])>0)
+        {
+            if(is_image($_FILES['APP_FAVICON']['tmp_name']))
+            {
+                $pathinfo = pathinfo($_FILES['APP_FAVICON']['name']);
+                $filename = 'app_favicon_' . time() . '.' . $pathinfo['extension'];
+                
+                move_uploaded_file($_FILES['APP_FAVICON']['tmp_name'], DIR_FS_UPLOADS  . $filename);
+                $v = $filename;
+            }
+        }
     }
     
     

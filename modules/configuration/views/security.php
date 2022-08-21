@@ -5,7 +5,7 @@
 <?php echo input_hidden_tag('redirect_to','configuration/attachments') ?>
 <div class="form-body">
   
-<h3 class="form-section">Google reCAPTCHA <a href="https://www.google.com/recaptcha/intro/index.html" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></h3>
+<h3 class="form-section">Google reCAPTCHA v2 <a href="https://www.google.com/recaptcha/intro/index.html" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i></a></h3>
   
   <p><?php echo TEXT_RECAPTCHA_INFO ?></p>
   <p><?php echo TEXT_RECAPTCHA_HOW_ENABLE ?></p>

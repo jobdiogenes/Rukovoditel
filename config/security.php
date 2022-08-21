@@ -8,6 +8,7 @@
 define('CFG_RECAPTCHA_ENABLE',false);
 define('CFG_RECAPTCHA_KEY','');
 define('CFG_RECAPTCHA_SECRET_KEY','');
+define('CFG_RECAPTCHA_TRUSTED_IP',''); //Enter IP by comma. reCAPTCHA will be disabled for entered IP
 
 /**
  * Restricted countries

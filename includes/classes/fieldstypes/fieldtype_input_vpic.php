@@ -20,7 +20,10 @@ class fieldtype_input_vpic
     $cfg[] = array('title'=>TEXT_ALLOW_SEARCH, 'name'=>'allow_search','type'=>'checkbox','tooltip_icon'=>TEXT_ALLOW_SEARCH_TIP);
                                 
     $cfg[] = array('title'=>TEXT_HIDE_FIELD_IF_EMPTY, 'name'=>'hide_field_if_empty','type'=>'checkbox','tooltip_icon'=>TEXT_HIDE_FIELD_IF_EMPTY_TIP);
-                                
+    
+    $cfg[] = array('title' => TEXT_IS_UNIQUE_FIELD_VALUE, 'name' => 'is_unique', 'type' => 'dropdown', 'choices' => fields_types::get_is_unique_choices(_POST('entities_id')), 'tooltip_icon' => TEXT_IS_UNIQUE_FIELD_VALUE_TIP, 'params' => array('class' => 'form-control input-large'));
+    $cfg[] = array('title'=>TEXT_ERROR_MESSAGE, 'name'=>'unique_error_msg','type'=>'input','tooltip_icon'=>TEXT_UNIQUE_FIELD_VALUE_ERROR_MSG_TIP,'tooltip'=>TEXT_DEFAULT . ': ' . TEXT_UNIQUE_FIELD_VALUE_ERROR,'params'=>array('class'=>'form-control input-xlarge'));
+                                            
     return $cfg;
   }
   
@@ -31,9 +34,11 @@ class fieldtype_input_vpic
     $attributes = array('class'=>'form-control input-medium'. 
                                  ' fieldtype_input field_' . $field['id'] . 
                                  ($field['is_required']==1 ? ' required noSpace':'') .
-                                 ($cfg->get('is_unique')==1 ? ' is-unique':''),
+                                 ($cfg->get('is_unique')>0 ? ' is-unique':''),
     										'maxlength'=>17,
                         );
+    
+    $attributes = fields_types::prepare_uniquer_error_msg_param($attributes,$cfg);
     
     $html ='
     		<div class="input-group input-medium">'. 

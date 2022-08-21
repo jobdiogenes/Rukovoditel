@@ -2,6 +2,8 @@
 
 <?php echo (strlen(CFG_LOGIN_PAGE_CONTENT)>0 ? '<p>' . nl2br(CFG_LOGIN_PAGE_CONTENT) . '</p>':'') ?>
 
+<?php echo maintenance_mode::login_message() ?>
+
 <?php if(access_groups::get_ldap_default_group_id()){ ?>
 
 <?php echo form_tag('login_form', url_for('users/ldap_login','action=login'),array('class'=>'login-form')) ?>

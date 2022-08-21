@@ -83,18 +83,27 @@ window.MapBBCode.include({
 		return node && node.tagName == 'FORM' ? node : false;
 	},
 
-	_addSubmitHandler: function( map, drawn ) {
+	//change submit event to click to autofill coordinates because users foget to click on Apply button
+	_addSubmitHandler: function( map, drawn, textArea) {
 		var initialBBCode = this._getBBCode(map, drawn);
 		var node = this._findParentForm(map.getContainer());
 		if( node ) {
-			L.DomEvent.on(node, 'submit', function(e) {
+			L.DomEvent.on(node, 'click', function(e) {
 				if( !this._findParentForm(map.getContainer()) )
 					return;
 
 				var bbcode = this._getBBCode(map, drawn);
-				if( bbcode != initialBBCode && drawn.getLayers().length > 0 ) {
-					if( !window.confirm(this.strings.submitWarning) )
-						L.DomEvent.preventDefault(e);
+				if( bbcode != initialBBCode && drawn.getLayers().length > 0 ) 
+				{																
+					if( textArea )
+					{	
+						$('#'+textArea.id).val(bbcode)						
+						//alert(textArea.id)
+					}
+					
+					//default code
+					//if( !window.confirm(this.strings.submitWarning) )
+						//L.DomEvent.preventDefault(e);
 				}
 			}, this);
 		}
@@ -306,7 +315,7 @@ window.MapBBCode.include({
 		}
 
 		if( this.options.confirmFormSubmit )
-			this._addSubmitHandler(map, drawn);
+			this._addSubmitHandler(map, drawn, textArea);
 		
 		return this._createControlAndCallHooks(mapDiv, map, drawn, {
 			editor: true,

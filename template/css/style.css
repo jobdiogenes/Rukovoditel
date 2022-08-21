@@ -24,7 +24,7 @@ Reset and overrides
 /* general body settings */
 body { 
   color: #000; 
-  font-family: areal, 'Open Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   padding: 0px !important;
   margin: 0px !important;
   font-size:13px; 
@@ -293,16 +293,20 @@ Header and header elements.
   margin-left: 25px;
 }
 
+.page-sidebar-menu .search-form{
+	display:block;
+}
+
 .header .search-form {
   float: left;
 }
 
 .header .search-form .form-control,
 .page-sidebar-menu .search-form .form-control {
-  -webkit-border-radius: 15px;
+  /*-webkit-border-radius: 15px;
      -moz-border-radius: 15px;
           border-radius: 15px;
-  padding-top: 3px;
+  padding-top: 3px;*/
 }
 
 .header .search-form .input-icon > i,
@@ -638,7 +642,9 @@ Page content
   background: none;
 }
 
-.page-sidebar-menu > li > ul.sub-menu > li > a .fa{
+.page-sidebar-menu > li > ul.sub-menu > li > a .fa,
+.page-sidebar-menu > li > ul.sub-menu > li > a .la
+{
 	margin-right: 5px; 	
 	vertical-align: top;
 }

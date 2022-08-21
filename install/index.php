@@ -1,42 +1,56 @@
 <?php
-  error_reporting(E_ALL & ~E_NOTICE);
-  
-  define('PROJECT_VERSION','2.2.1');
-  
-// set default timezone if none exists (PHP 5.3 throws an E_WARNING)
-	define('CFG_TIME_ZONE','Europe/Moscow');
-	
-  if (PHP_VERSION >= '5.2') {
-  	date_default_timezone_set(defined('CFG_TIME_ZONE') ? CFG_TIME_ZONE : date_default_timezone_get());
-  }
-      
-  include('lib/database.php');
-  
-  include('lib/html.php');
-  
-  if(isset($_GET['step']) and !isset($_GET['lng']))
-  {
-    header('Location: index.php');
-    exit();
-  }
-  
-  if(isset($_GET['lng']))
-  {
-    include('languages/' . $_GET['lng'] . '.php');
-    
-    $app_title = sprintf(TEXT_INSTALLATION_HEADING,PROJECT_VERSION);
-  }
-  else
-  {
-    $app_title = sprintf('Rukovoditel %s Installation',PROJECT_VERSION);
-  }
-  
-  
-       
-  if($_GET['step']=='rukovoditel_config') include('actions/check_db_settings.php');
-  
-  if($_GET['action']=='install_rukovoditel') include('actions/install_rukovoditel.php');
-  
+    error_reporting(E_ALL & ~E_NOTICE);
+
+    define('PROJECT_VERSION', '3.2.1');
+
+    // set default timezone if none exists (PHP 5.3 throws an E_WARNING)
+    define('CFG_TIME_ZONE', 'Europe/Moscow');
+
+    if (PHP_VERSION >= '5.2')
+    {
+        date_default_timezone_set(defined('CFG_TIME_ZONE') ? CFG_TIME_ZONE : date_default_timezone_get());
+    }
+
+    include('lib/database.php');
+
+    include('lib/html.php');
+
+    if (isset($_GET['step']) and !isset($_GET['lng']))
+    {
+        header('Location: index.php');
+        exit();
+    }
+
+    if (isset($_GET['lng']))
+    {
+        switch ($_GET['lng'])
+        {
+            case 'russian':
+                include('languages/russian.php');
+                break;
+            case 'english':
+                include('languages/english.php');
+                break;
+        }
+
+        $app_title = sprintf(TEXT_INSTALLATION_HEADING, PROJECT_VERSION);
+    }
+    else
+    {
+        include('languages/english.php');
+        
+        $app_title = sprintf('Rukovoditel %s Installation', PROJECT_VERSION);
+    }
+
+    $step = $_GET['step'] ?? '';
+    $action = $_GET['action'] ?? '';
+
+
+    if ($step == 'rukovoditel_config')
+        include('actions/check_db_settings.php');
+
+    if ($action == 'install_rukovoditel')
+        include('actions/install_rukovoditel.php');
 ?>
 
 
@@ -106,18 +120,34 @@
 <!-- BEGIN LOGIN -->
 <div class="content">
 
-<?php if(!$_GET['step']) include('modules/language.php')?>
-<?php if($_GET['step']=='checking_environment') include('modules/checking_environment.php')?>
-<?php if($_GET['step']=='database_config') include('modules/database_config.php')?>
-<?php if($_GET['step']=='rukovoditel_config') include('modules/rukovoditel_config.php')?>
-<?php if($_GET['step']=='success') include('modules/success.php')?>
-
+<?php
+    switch($step)
+    {
+        case 'checking_environment':
+            include('modules/checking_environment.php');
+            break;
+        case 'database_config':
+            include('modules/database_config.php');
+            break;
+        case 'rukovoditel_config':
+            include('modules/rukovoditel_config.php');
+            break;
+        case 'success':
+            include('modules/success.php');
+            break;
+        default:
+            include('modules/language.php');
+            break;
+        
+    }
+?>
+    
 </div>
 <!-- END LOGIN -->
 <!-- BEGIN COPYRIGHT -->
 <div class="copyright">
-	 <a href="http://rukovoditel.net">Rukovoditel <?php echo PROJECT_VERSION ?></a><br>
-    Copyright &copy; <?php echo date('Y')?> <a href="http://rukovoditel.net">www.rukovoditel.net</a>
+	 <a href="https://www.rukovoditel.net" target="_blank">Rukovoditel <?php echo PROJECT_VERSION ?></a><br>
+    Copyright &copy; <?php echo date('Y')?> <a target="_blank" href="https://www.rukovoditel.net">www.rukovoditel.net</a>
 </div>
 <!-- END COPYRIGHT -->
 <!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->

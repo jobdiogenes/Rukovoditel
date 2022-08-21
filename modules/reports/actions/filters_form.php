@@ -1,6 +1,6 @@
 <?php
 
-$reports_info_query = db_query("select * from app_reports where id='" . db_input((isset($_GET['parent_reports_id']) ? $_GET['parent_reports_id']:$_GET['reports_id'])). "' and created_by='" . db_input($app_logged_users_id) . "'");
+$reports_info_query = db_query("select * from app_reports where id='" . db_input((isset($_GET['parent_reports_id']) ? _GET('parent_reports_id'):_GET('reports_id'))) . "'");
 if(!$reports_info = db_fetch_array($reports_info_query))
 {
   echo TEXT_REPORT_NOT_FOUND;

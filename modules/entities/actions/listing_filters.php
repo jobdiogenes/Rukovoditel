@@ -34,7 +34,7 @@ switch($app_module_action)
     }
     $sql_data = array('reports_id'=>$_GET['reports_id'],
                       'fields_id'=>$_POST['fields_id'],
-                      'filters_condition'=>$_POST['filters_condition'],                                              
+                      'filters_condition'=>($_POST['filters_condition'] ?? ''),                                              
                       'filters_values'=>$values,
                       );
         

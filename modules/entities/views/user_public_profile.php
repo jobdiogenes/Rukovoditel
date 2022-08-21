@@ -13,7 +13,7 @@
 <div class="cfg_listing">        
   <ul id="fields_in_profile" class="sortable">
   <?php
-  $fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.type not in (" . fields_types::get_reserverd_types_list() . "," . fields_types::get_users_types_list(). ") and f.id in (" . $public_user_profile_fields . ") and  f.entities_id='" . db_input($_GET['entities_id']) . "' and f.forms_tabs_id=t.id order by  field(f.id," . $public_user_profile_fields . ")");
+  $fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.type not in (" . fields_types::get_reserverd_types_list() . ",'fieldtype_section','fieldtype_user_photo','fieldtype_user_skin','fieldtype_user_language') and f.id in (" . $public_user_profile_fields . ") and  f.entities_id='" . db_input($_GET['entities_id']) . "' and f.forms_tabs_id=t.id order by  field(f.id," . $public_user_profile_fields . ")");
   while($v = db_fetch_array($fields_query))
   {
     echo '<li id="form_fields_' . $v['id'] . '"><div>' . fields_types::get_option($v['type'],'name',$v['name']) . '</div></li>';
@@ -32,7 +32,7 @@
 <div class="cfg_listing">        
 <ul id="fields_excluded_from_profile" class="sortable">
 <?php
-$fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.type not in (" . fields_types::get_reserverd_types_list()  . "," . fields_types::get_users_types_list(). ") and f.id not in (" . $public_user_profile_fields . ") and  f.entities_id='" . db_input($_GET['entities_id']) . "' and f.forms_tabs_id=t.id order by t.sort_order, t.name, f.sort_order, f.name");
+$fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.type not in (" . fields_types::get_reserverd_types_list()  . ",'fieldtype_section','fieldtype_user_photo','fieldtype_user_skin','fieldtype_user_language') and f.id not in (" . $public_user_profile_fields . ") and  f.entities_id='" . db_input($_GET['entities_id']) . "' and f.forms_tabs_id=t.id order by t.sort_order, t.name, f.sort_order, f.name");
 while($v = db_fetch_array($fields_query))
 {
   echo '<li id="form_fields_' . $v['id'] . '"><div>' . fields_types::get_option($v['type'],'name',$v['name']). '</div></li>';

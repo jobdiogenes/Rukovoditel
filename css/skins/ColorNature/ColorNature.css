@@ -68,9 +68,9 @@ Page header
 }
 .search-form .form-control,
 .page-sidebar-menu .form-control {
-  color: #4fb6f3;
-  background-color: #0e86ce;
-  border-color: #08486e;
+  color: #200c18;
+  background-color: #effaf5;
+  border-color: #200c18;
 }
 .search-form .input-icon > i,
 .page-sidebar-menu .input-icon > i {

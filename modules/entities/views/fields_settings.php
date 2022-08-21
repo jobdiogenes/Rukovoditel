@@ -31,7 +31,17 @@
   {
     if(!in_array($k,$exclude_cfg_keys))
     {
-      echo input_hidden_tag('fields_configuration[' . $k . ']',$v);
+    	if(is_array($v))
+    	{
+    		foreach($v as $vv)
+    		{
+    			echo input_hidden_tag('fields_configuration[' . $k . '][]',$vv);
+    		}
+    	}
+    	else 
+    	{
+      	echo input_hidden_tag('fields_configuration[' . $k . ']',$v);
+    	}
     } 
   } 
 ?>

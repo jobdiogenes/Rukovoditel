@@ -2,6 +2,24 @@ body{
   direction: rtl;
 }
 
+.navbar-inverse .navbar-brand{
+	padding-left: 0px;
+	padding-right: 15px;
+}
+
+.list-inline {
+	padding-right: 0;	
+}
+
+.list-inline>li:first-child{
+	padding-left: 10px;
+}
+
+.horizontal-filters-panels li {
+	padding-left: 10px;
+    padding-right: 0;
+}
+
 .page-sidebar ul > li > a > .arrow:before {
   float: left;
   content: "\f105";
@@ -13,12 +31,13 @@ body{
 
 .page-sidebar-menu > li > ul.sub-menu > li > a {
   padding-left: 0px !important;
-  padding-right: 35px !important;
+  padding-right: 17px !important;
 }
 
 .page-sidebar-menu .title {
   padding-right: 0px;
   padding-left: 10px;
+  /*width: 165px !important;*/
 }
 
 .page-sidebar-menu > li > a i {
@@ -55,7 +74,12 @@ body{
 
 .page-sidebar-menu > li > ul.sub-menu > li > ul.sub-menu > li > a {
   padding-left: 0px;
-  padding-right: 60px;  
+  padding-right: 30px;  
+}
+
+.page-sidebar-menu > li > ul.sub-menu > li > ul.sub-menu > li > ul.sub-menu > li > a {
+    padding-left: 0px;
+    padding-right: 43px;
 }
 
 .page-sidebar-closed .page-sidebar-menu > li:hover .title{
@@ -90,6 +114,13 @@ body{
   .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
     float: right;
   }
+}
+
+@media (min-width: 768px)
+{
+	.col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
+	    float: right;
+	}
 }
 
 .navbar-search.pull-right{
@@ -195,7 +226,7 @@ th{
 }
 
 .chosen-container .chosen-drop{
-  left: 9999px;
+  /*left: 9999px;*/
 }
 
 .align-right{

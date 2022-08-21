@@ -50,7 +50,8 @@
     </div>			
   </div>  
     
-  
+	<div id="listing_types"></div>
+      
   <div class="form-group">
   	<label class="col-md-4 control-label" for="name"><?php echo TEXT_NAME ?></label>
     <div class="col-md-8">	
@@ -59,12 +60,25 @@
   </div>
   
   <div class="form-group">
-  	<label class="col-md-4 control-label" for="cfg_menu_title"><?php echo TEXT_MENU_ICON_TITLE; ?></label>
+  	<label class="col-md-4 control-label" for="menu_icon"><?php echo TEXT_MENU_ICON_TITLE; ?></label>
     <div class="col-md-8">	
   	  <?php echo input_tag('menu_icon', $obj['menu_icon'],array('class'=>'form-control input-large')); ?> 
       <?php echo tooltip_text(TEXT_MENU_ICON_TITLE_TOOLTIP) ?>
     </div>			
   </div>  
+        
+    <div class="form-group">
+        <label class="col-md-4 control-label"><?php echo TEXT_COLOR ?></label>
+        <div class="col-md-8">
+            <table><tr><td>     
+                <?php echo input_color('icon_color',$obj['icon_color']) ?>	    			  	  
+                <?php echo tooltip_text(TEXT_ICON) ?>
+            </td><td style="padding-left: 10px;">            
+                <?php echo input_color('bg_color',$obj['bg_color'])?>
+                <?php echo tooltip_text(TEXT_BACKGROUND) ?>
+            </td></tr></table>    
+        </div> 
+    </div>      
   
   <div class="form-group">
   	<label class="col-md-4 control-label" for="in_menu"><?php echo TEXT_IN_MENU ?></label>
@@ -92,25 +106,32 @@
 	  </div>
 	  
 	  <div class="form-group">
-	  	<label class="col-md-4 control-label" for="in_dashboard_counter"><?php echo TEXT_DISPLAY_ICON ?></label>
+	  	<label class="col-md-4 control-label" for="in_dashboard_icon"><?php echo TEXT_DISPLAY_ICON ?></label>
 	    <div class="col-md-8">	
 	  	  <div class="checkbox-list"><label class="checkbox-inline"><?php echo input_checkbox_tag('in_dashboard_icon','1',array('checked'=>$obj['in_dashboard_icon'])) ?></label></div>
 	    </div>			
 	  </div>
 	  
-	  <div class="form-group">
-	  	<label class="col-md-4 control-label" for="in_dashboard_counter"><?php echo TEXT_COLOR ?></label>
-	    <div class="col-md-8">
-	    	<div class="input-group input-small color colorpicker-default" data-color="<?php echo (strlen($obj['in_dashboard_counter_color'])>0 ? $obj['in_dashboard_counter_color']:'#37b7f3')?>" >
-	  	   <?php echo input_tag('in_dashboard_counter_color',$obj['in_dashboard_counter_color'],array('class'=>'form-control input-small')) ?>
-	        <span class="input-group-btn">
-	  				<button class="btn btn-default" type="button"><i style="background-color: #3865a8;"></i>&nbsp;</button>
-	  			</span>
-	  		</div>		  	  
-	    </div>			
-	  </div>
+            <div class="form-group">
+	  	<label class="col-md-4 control-label"><?php echo TEXT_COLOR ?></label>
+                <div class="col-md-2">
+                    <?php echo input_color('in_dashboard_counter_color',$obj['in_dashboard_counter_color']) ?>	    			  	  
+                    <?php echo tooltip_text(TEXT_TEXT) ?>
+                </div>               
+                <div class="col-md-2">
+                    <?php echo input_color('in_dashboard_counter_bg_color',$obj['in_dashboard_counter_bg_color'])?>
+                    <?php echo tooltip_text(TEXT_BACKGROUND) ?>
+                </div> 
+            </div>
 	  
 	  <div id="form_numeric_fields"></div>
+          
+          <div class="form-group">
+	  	<label class="col-md-4 control-label" for="dashboard_counter_hide_zero_count"><?php echo TEXT_HIDE_COUNTER_IF_NO_RECORDS ?></label>
+	    <div class="col-md-8">	
+	  	  <div class="checkbox-list"><label class="checkbox-inline"><?php echo input_checkbox_tag('dashboard_counter_hide_zero_count','1',array('checked'=>$obj['dashboard_counter_hide_zero_count'])) ?></label></div>
+	    </div>			
+	  </div>
 	  
 	   
 	</div>
@@ -165,10 +186,13 @@
     $('#users_groups_form').validate();
 
     $('#entities_id').change(function(){
-    	load_numeric_fields();      
+    	load_numeric_fields();
+    	load_listing_types();      
     })                      
 
-    load_numeric_fields();                                             
+    load_numeric_fields(); 
+
+    load_listing_types();                                            
   });
 
   function load_numeric_fields()
@@ -177,8 +201,16 @@
     $('#form_numeric_fields').addClass('ajax-loading');
     $('#form_numeric_fields').load('<?php echo url_for("reports/reports","action=get_numeric_fields&id=" . $obj['id']) ?>',{entities_id:$('#entities_id').val()},function(){
       $('#form_numeric_fields').removeClass('ajax-loading');
+			appHandleUniform();            
     })      
   }  
+
+  function load_listing_types()
+  {             
+    $('#listing_types').load('<?php echo url_for("reports/reports","action=get_listing_types&id=" . $obj['id']) ?>',{entities_id:$('#entities_id').val()},function(){
+     
+    })      
+  } 
   
 </script>   
     

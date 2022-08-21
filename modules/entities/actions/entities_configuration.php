@@ -11,8 +11,15 @@ switch($app_module_action)
       }
       
       $alerts->add(TEXT_CONFIGURATION_UPDATED,'success');
-                      
-      redirect_to('entities/entities_configuration','entities_id=' . $_GET['entities_id']);
+      
+      if(strlen($app_redirect_to))
+      {
+          redirect_to($app_redirect_to,'entities_id=' . $_GET['entities_id']);
+      }
+      else
+      {
+        redirect_to('entities/entities_configuration','entities_id=' . $_GET['entities_id']);
+      }
       
     break;
 }

@@ -21,7 +21,11 @@
   while($v = db_fetch_array($reports_query)):
 ?>
   <tr>
-    <td style="white-space: nowrap;"><?php echo button_icon_delete(url_for('reports/delete','id=' . $v['id'])) . ' ' . button_icon_edit(url_for('reports/form','id=' . $v['id'])) . ' ' . button_icon(TEXT_BUTTON_CONFIGURE_FILTERS,'fa fa-cogs',url_for('reports/filters','reports_id=' . $v['id']),false); ?></td>    
+    <td style="white-space: nowrap;"><?php 
+        echo button_icon_delete(url_for('reports/delete','id=' . $v['id'])) . ' ' . 
+             button_icon_edit(url_for('reports/form','id=' . $v['id'])) . ' ' . 
+             button_icon(TEXT_COPY,'fa fa-files-o',url_for('reports/reports','action=copy&reports_id=' . $v['id']),false,['onClick'=>'return confirm("' . addslashes(TEXT_COPY). '?")']) . ' ' .
+             button_icon(TEXT_BUTTON_CONFIGURE_FILTERS,'fa fa-cogs',url_for('reports/filters','reports_id=' . $v['id']),false); ?></td>    
     <td><?php echo $v['id'] ?></td>
     <td><?php echo $v['entities_name'] ?></td>
     <td><?php echo link_to($v['name'],url_for('reports/view','reports_id=' . $v['id'])) ?></td>

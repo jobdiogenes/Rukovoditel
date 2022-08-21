@@ -97,24 +97,38 @@ class fieldtype_parent_value
 				$cfg = new fields_types_cfg($options['field']['configuration']);
 				
 				if(strlen($cfg->get('field_id')))
-				{
-					$field = db_find('app_fields',$cfg->get('field_id'));
+				{					
+					$field_query = db_query("select * from app_fields where id='" . $cfg->get('field_id') . "'");
+					if(!$field = db_fetch_array($field_query))
+					{
+						return '';
+					}
 					
 					//prepare field value
 					$value = items::prepare_field_value_by_type($field, $item);
 					
-					$output_options = array(
-							'class'       => $field['type'],
-							'value'       => $value,
-							'field'       => $field,
-							'item'        => $item,
-							'is_listing'  => true,
-							'redirect_to' => '',
-							'reports_id'  => 0,
-							'path'        => $entities_info['parent_id'],							
-					);
-					
-					$html = fields_types::output($output_options);
+					if(isset($options['output_db_value']))
+					{
+						$html = $value;
+					}
+					else
+					{						
+						$output_options = array(
+								'class'       => $field['type'],
+								'value'       => $value,
+								'field'       => $field,
+								'item'        => $item,
+								'is_listing'  => true,
+								'redirect_to' => '',
+								'reports_id'  => 0,
+								'path'        => $entities_info['parent_id'],							
+						);
+						
+						if(isset($options['is_export'])) $output_options['is_export'] = $options['is_export']; 
+						if(isset($options['is_print'])) $output_options['is_print'] = $options['is_print'];
+						
+						$html = fields_types::output($output_options);
+					}
 				}
 			}
 		}

@@ -1,6 +1,6 @@
 <?php
 
-  function db_connect($server, $username, $password,$database, $link = 'db_link',$params = array()) {    
+  function db_connect($server, $username, $password,$database,$port, $link = 'db_link',$params = array()) {    
     global $$link;
       
     $$link = mysqli_init();
@@ -17,9 +17,20 @@
         db_error('Setting MYSQLI_INIT_COMMAND failed',$params);
     }
     
-    if (!@mysqli_real_connect($$link, $server, $username, $password, $database)) {
-        db_error('Error: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error(),$params);
+    if(strlen($port))
+    {
+    	if (!@mysqli_real_connect($$link, $server, $username, $password, $database, $port)) {
+    		db_error('Error: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error(),$params);
+    	}
     }
+    else
+    {
+    	if (!@mysqli_real_connect($$link, $server, $username, $password, $database)) {
+    		db_error('Error: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error(),$params);
+    	}
+    }
+    
+    db_query("SET sql_mode = ''");
 
     return $$link;    
   }
@@ -28,7 +39,7 @@
   function db_query($query, $link = 'db_link') {
     global $$link;
     
-    $result = mysqli_query($$link, $query ) or die($query . '<br>' . mysqli_errno($$link) . '<br>' . mysqli_error($$link));
+    $result = mysqli_query($$link, $query ) or die('<div style="color: red">' . $query . '<br>' . mysqli_errno($$link) . '<br>' . mysqli_error($$link) . '</div>');
             
     return $result;
   }
@@ -69,16 +80,25 @@
     return addslashes($string);
   } 
   
-  function db_perform($table, $data, $action = 'insert', $parameters = '') {
+  function db_perform($table, $data, $action = 'insert', $parameters = '') 
+  {
     reset($data);
-    if ($action == 'insert') {
+    
+    if ($action == 'insert') 
+    {
       $query = 'insert into ' . $table . ' (';
-      while (list($columns, ) = each($data)) {
+            
+      foreach($data as $columns=>$value)
+      {
         $query .= $columns . ', ';
       }
+      
       $query = substr($query, 0, -2) . ') values (';
+      
       reset($data);
-      while (list(, $value) = each($data)) {
+      
+      foreach($data as $columns=>$value)
+      {      
         switch ((string)$value) {
           case 'now()':
             $query .= 'now(), ';
@@ -92,9 +112,13 @@
         }
       }
       $query = substr($query, 0, -2) . ')';
-    } elseif ($action == 'update') {
+    } 
+    elseif ($action == 'update') 
+    {
       $query = 'update ' . $table . ' set ';
-      while (list($columns, $value) = each($data)) {
+       
+      foreach($data as $columns=>$value)
+      {
         switch ((string)$value) {
           case 'now()':
             $query .= $columns . ' = now(), ';
@@ -111,4 +135,10 @@
     }
 
     return db_query($query);
-  }   
+  }  
+  
+  function db_insert_id($link = 'db_link') {
+  	global $$link;
+  
+  	return mysqli_insert_id($$link);
+  }

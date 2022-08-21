@@ -20,3 +20,15 @@
 <?php echo ajax_modal_template_footer(TEXT_BUTTON_CREATE_BACKUP) ?>
 
 </form> 
+
+<script>
+  $(function() { 
+    $('#backup_form').validate({
+			submitHandler: function(form){
+				app_prepare_modal_action_loading(form)
+				form.submit();
+			}
+    });                                                                  
+  });
+  
+</script>

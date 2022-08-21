@@ -13,7 +13,7 @@ class fieldtype_qrcode
 	{
 		$cfg = array();
 
-		$cfg[] = array('title'=>TEXT_QRCODE_PATTERN, 
+		$cfg[] = array('title'=>TEXT_QRCODE_PATTERN  . fields::get_available_fields_helper($_POST['entities_id'], 'fields_configuration_pattern'), 
                    'name'=>'pattern',
                    'type'=>'textarea',    
                    'tooltip'=>TEXT_ENTER_TEXT_PATTERN_INFO,

@@ -37,7 +37,14 @@
      
      $('#copy_to_entities_id').change(function(){
        get_entities_form_tabs();
-     })         
+     })  
+
+     $('#form-copy-to').validate({
+ 			submitHandler: function(form){
+ 				app_prepare_modal_action_loading(form)
+ 				form.submit();
+ 			}
+     });        
   })
   
   

@@ -145,7 +145,7 @@ class users_filters
     }
   }
   
-  function ser_reports_settings($filters_id)
+  function set_reports_settings($filters_id)
   {
   	$reports_info_query = db_query("select * from app_reports where id='" . db_input($this->reports_id). "'");
   	$reports_info = db_fetch_array($reports_info_query);

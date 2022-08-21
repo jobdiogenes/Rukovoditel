@@ -2,11 +2,15 @@
 <?php echo ajax_modal_template_header(TEXT_SORT_VALUES) ?>
 
 <?php echo form_tag('choices_form', url_for('entities/fields_choices','action=sort&entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id']),array('class'=>'form-horizontal')) ?>
+<?php 
+    $parent_id = $_GET['parent_id']??0;
+    echo input_hidden_tag('parent_id',$parent_id);
+?>
 <div class="modal-body">
   <div class="form-body">
  
 <div class="dd" id="choices_sort">      
-<?php echo fields_choices::get_html_tree($_GET['fields_id']) ?>
+<?php echo fields_choices::get_html_tree($_GET['fields_id'],$parent_id) ?>
 </div>
       
    </div>

@@ -17,8 +17,11 @@ class app_restricted_countries
 	static function verify()
 	{
 		if(self::is_enabled())
-		{			
-			include("includes/libs/maxmind/src/geoip.inc");
+		{	
+			if(!function_exists("geoip_country_code_by_addr"))
+			{	
+				include("includes/libs/maxmind/src/geoip.inc");
+			}
 			
 			$gi = geoip_open("includes/libs/maxmind/GeoIP.dat", GEOIP_STANDARD);
 			

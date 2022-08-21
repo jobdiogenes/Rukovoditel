@@ -1,7 +1,7 @@
 <?php
 
 //check if report exist  
-$reports_info_query = db_query("select * from app_reports where id='" . db_input($_GET['reports_id']). "'");
+$reports_info_query = db_query("select * from app_reports where id='" . db_input(_get::int('reports_id')). "'");
 if(!$reports_info = db_fetch_array($reports_info_query))
 {  
   $alerts->add(TEXT_REPORT_NOT_FOUND,'error');
@@ -13,7 +13,7 @@ switch($app_module_action)
   case 'use':
       $users_filters = new users_filters($_GET['reports_id']);
       $users_filters->use_filters($_GET['id']);
-      $users_filters->ser_reports_settings($_GET['id']);      
+      $users_filters->set_reports_settings($_GET['id']);      
     break;
   case 'save':                  
     $filters_id = (isset($_POST['filters_id']) ? (int)$_POST['filters_id'] : 0);

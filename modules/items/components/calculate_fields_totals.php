@@ -17,7 +17,7 @@ foreach($listing_numeric_fields as $id)
     
     if(strstr($formulas_sql_query_select,'as ' . $field_name))
     {    
-      if(preg_match('/(.*?) as ' . $field_name . '/',$formulas_sql_query_select,$matches))
+      if(preg_match('/(.*?) as ' . $field_name . '/',str_replace(array("\n","\r","\n\r"),' ', $formulas_sql_query_select),$matches))
       {
         //echo '<pre>';
         //print_r($matches);
@@ -43,6 +43,8 @@ while($totals = db_fetch_array($totals_query))
 	
 	foreach($totals as $k=>$v)
 	{
+		$v = (is_numeric($v) ? $v : 0);
+		
 		if(isset($totals_array[$k]))
 		{
 			$totals_array[$k]+=$v;
@@ -58,7 +60,7 @@ $totals = $totals_array;
 
 $html .= '
   <tfoot>
-    <tr>
+    <tr class="listing-table-tr">
       ' . ($has_with_selected ? '<td></td>':''); 
 
 foreach($listing_fields as $field)
@@ -80,13 +82,15 @@ foreach($listing_fields as $field)
       if(strlen($avg_value))
       {
       	$avg_value = number_format($avg_value,$format[0],$format[1],$format[2]);
-      }
+      }      
     }
-    elseif(strstr($value,'.'))
+    elseif(strstr($value,'.') or strstr($avg_value,'.'))
     {
-      $value = number_format($value,2,'.','');
+    	if(strstr($value,'.'))
+      	$value = number_format($value,2,'.','');
       
-      $avg_value = number_format($avg_value,2,'.','');
+      if(strstr($avg_value,'.'))
+      	$avg_value = number_format($avg_value,2,'.','');      
     }
     
     //add prefix and sufix

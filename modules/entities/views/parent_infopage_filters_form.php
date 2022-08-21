@@ -8,7 +8,7 @@
   <div class="form-group">
   	<label class="col-md-3 control-label" for="fields_id"><?php echo TEXT_SELECT_FIELD ?></label>
     <div class="col-md-9">	
-  	  <?php echo select_tag('fields_id',fields::get_filters_choices($reports_info['entities_id'],false),$obj['fields_id'],array('class'=>'form-control required','onChange'=>'load_fitlers_options(this.value)')) ?>
+  	  <?php echo select_tag('fields_id',fields::get_filters_choices($reports_info['entities_id'],false),$obj['fields_id'],array('class'=>'form-control chosen-select required','onChange'=>'load_fitlers_options(this.value)')) ?>
     </div>			
   </div>
      

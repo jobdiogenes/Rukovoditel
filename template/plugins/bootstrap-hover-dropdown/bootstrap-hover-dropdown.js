@@ -17,6 +17,10 @@
     // if instantlyCloseOthers is true, then it will instantly
     // shut other nav items when a new one is hovered over
     $.fn.dropdownHover = function (options) {
+        
+        //set off it
+        if(app_cfg_drop_down_menu_on_hover==0) return this;
+        
         // don't do anything if touch is supported
         // (plugin causes some issues on mobile)
         if('ontouchstart' in document) return this; // don't want to affect chaining

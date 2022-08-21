@@ -65,7 +65,7 @@ class listing_search
 		$settings = array(
 				'search_keywords'=> addslashes($_POST['search_keywords']),
 				'use_search_fields'=> $_POST['use_search_fields'],
-				'search_in_comments'=> $_POST['search_in_comments'],
+				'search_in_comments'=> isset($_POST['search_in_comments']) ? $_POST['search_in_comments'] : 0,
 				'search_in_all'=> $_POST['search_in_all'],
 				'search_type_and'=> $_POST['search_type_and'],				
 				'search_type_match'=> $_POST['search_type_match'],

@@ -6,11 +6,31 @@
   <div class="form-body">
   
 <?php if(isset($_GET['parent_id'])) echo input_hidden_tag('parent_id',$_GET['parent_id']) ?>
+      
+<?php
+if(!isset($_GET['parent_id']) and (int)$obj['parent_id']==0)
+{
+    $choices = entities_groups::get_choices();
+    
+    if(count($choices))
+    {
+        echo '
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="name">' . TEXT_GROUP . '</label>
+                <div class="col-md-9">	
+                      ' . select_tag('group_id',$choices, $obj['group_id'],array('class'=>'form-control input-large')) . '
+                </div>			
+          </div>  
+            ';
+    }
+    
+}
+?>
 
   <div class="form-group">
   	<label class="col-md-3 control-label" for="name"><?php echo TEXT_NAME ?></label>
     <div class="col-md-9">	
-  	  <?php echo input_tag('name',$obj['name'],array('class'=>'form-control input-medium required')) ?>
+  	  <?php echo input_tag('name',$obj['name'],array('class'=>'form-control input-large required')) ?>
     </div>			
   </div>  
   

@@ -12,7 +12,7 @@ class choices_values
   {
     $this->entities_id = $entities_id;
     
-    $this->use_for_fieldtypes = array('fieldtype_dropdown','fieldtype_radioboxes','fieldtype_grouped_users','fieldtype_checkboxes','fieldtype_dropdown_multiple','fieldtype_entity','fieldtype_users','fieldtype_dropdown_multilevel');
+    $this->use_for_fieldtypes = array('fieldtype_color','fieldtype_access_group','fieldtype_users_approve','fieldtype_user_roles','fieldtype_entity_ajax','fieldtype_tags','fieldtype_dropdown','fieldtype_radioboxes','fieldtype_grouped_users','fieldtype_checkboxes','fieldtype_dropdown_multiple','fieldtype_entity','fieldtype_users','fieldtype_users_ajax','fieldtype_dropdown_multilevel');
     
     $this->choices_values_list = array();
   }
@@ -33,7 +33,7 @@ class choices_values
     	db_query("delete from app_entity_" . $this->entities_id . "_values where items_id='" . db_input($items_id) . "' and fields_id='" . $values['fields_id']. "'");
     	
       //prepare valuse
-      $value = (is_array($values['value']) ? $values['value'] : (strlen($values['value'])>0 ? array($values['value']): array()) );
+      $value = (is_array($values['value']) ? $values['value'] : (strlen($values['value'])>0 ? explode(',',$values['value']): array()) );
       
       $sql_data = array();
       

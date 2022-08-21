@@ -1,6 +1,9 @@
 /**
 Core script to handle the entire theme and core functions
 **/
+
+var myMap
+
 var App = function () {
 
     // IE mode
@@ -365,9 +368,24 @@ var App = function () {
                 body.removeClass('page-sidebar-hover-on');
                 sidebar.css('width', '').hide().show();
                 handleSidebarAndContentHeight(); //fix content & sidebar height
-                $.cookie('sidebar_closed', '0');
+                //$.cookie('sidebar_closed', '0');
                 e.stopPropagation();
                 runResponsiveHandlers();
+                                                
+                if (body.hasClass("page-sidebar-closed")) 
+                {	       
+                	
+	                $.cookie('sidebar_closed', '1');	                  
+	                set_user_cfg('sidebar-status','page-sidebar-closed');
+	              } 
+	              else 
+	              {	         	              	
+	                $.cookie('sidebar_closed', '0');	                  
+	                set_user_cfg('sidebar-status','')
+	              }
+                
+                jQuery(window).resize();
+                
                 return;
             }
 
@@ -400,29 +418,46 @@ var App = function () {
         // handle search for header search input on enter press
         $('.search-form-header').on('keypress', 'input.form-control', function (e) {
             if (e.which == 13) {
-                $('.search-form-header').submit();
+            	if($('.search-form-header')[0].checkValidity())
+            	{
+                $('.search-form-header').submit();   
                 return false;
+            	}
             }
         });
 
         // handle search for header search input on icon click
         $('.search-form-header').on('click', '.icon-search', function (e) {
-            $('.search-form-header').submit();
-            return false;
+        	if($('.search-form-header')[0].checkValidity())
+        	{
+        		$('.search-form-header').submit();  
+        		return false;
+        	}
+        	else
+        	{        		
+        		$('.search-form-header').find(':submit').click();
+        	}
         });
 
         // handle search for sidebar search input on enter press
         $('.search-form-sidebar').on('keypress', 'input.form-control', function (e) {
-            if (e.which == 13) {
+            if (e.which == 13) 
+            {
+            	if($('.search-form-sidebar')[0].checkValidity())
+            	{	
                 $('.search-form-sidebar').submit();
                 return false;
+            	}
             }
         });
 
         // handle search for sidebar search input on icon click
         $('.search-form-sidebar').on('click', '.icon-search', function (e) {
+        	if($('.search-form-sidebar')[0].checkValidity())
+        	{
             $('.search-form-sidebar').submit();
             return false;
+        	} 
         });
     }
 
@@ -451,17 +486,80 @@ var App = function () {
             }, 1000);
         });
 
-        jQuery('body').on('click', '.portlet > .portlet-title > .tools > .collapse, .portlet .portlet-title > .tools > .expand', function (e) {
+                    
+        $('.portlet > .portlet-title').click(function(e){
+                                                
+            if(!$(e.target).hasClass('portlet-title') && !$(e.target).hasClass('caption') && !$(e.target).hasClass("collapse") && !$(e.target).hasClass("expand"))
+            {
+                return true
+            }
+                            
             e.preventDefault();
+            
             var el = jQuery(this).closest(".portlet").children(".portlet-body");
-            if (jQuery(this).hasClass("collapse")) {
-                jQuery(this).removeClass("collapse").addClass("expand");
-                el.slideUp(200);
+                                    
+            let obj = $('.tools a.collapse',this).length ? $('.tools a.collapse',this) : $('.tools a.expand',this)                        
+                        
+            if (obj.hasClass("collapse")) {
+                obj.removeClass("collapse").addClass("expand");
+                el.slideUp(200);   
+                
+                url = url_for('dashboard/portlets','action=set_status&status=1')
+                $.ajax({ type: "POST",url: url,data:{name: el.attr('data_portlet_id')}})
+                
             } else {
-                jQuery(this).removeClass("expand").addClass("collapse");
+                obj.removeClass("expand").addClass("collapse");
                 el.slideDown(200);
+                
+                url = url_for('dashboard/portlets','action=set_status&status=0')
+                $.ajax({ type: "POST",url: url,data:{name: el.attr('data_portlet_id')}})
+                
             }
         });
+        
+        //table-sidebar
+        $('.table-sidebar .table-sidebar-action').click(function(e){
+            
+            let el = jQuery(this).closest(".table-sidebar")
+            
+            el = $('.table-sidebar-body',el)
+            
+            //handle map size
+            if($(this).hasClass('resize-ymap'))
+            {
+                container_width = parseInt($("#yandex_map_container").outerWidth())
+                sidebar_width = parseInt($(".table-sidebar-body").attr("width"))
+                if($(this).hasClass("collapse"))
+                {
+                    $("#yandex_map_container").width(container_width+sidebar_width)                        
+                }
+                else
+                {
+                    $("#yandex_map_container").width(container_width-sidebar_width) 
+                }     
+                
+                myMap.container.fitToViewport(); 
+            }
+            
+            if($(this).hasClass('collapse'))
+            {
+                $(this).removeClass("collapse").addClass("expand");                
+                el.hide()
+                
+                status = 1
+            }
+            else
+            {
+                $(this).removeClass("expand").addClass("collapse");                
+                el.show()
+                
+                status = 0
+            }
+            
+            url = url_for('dashboard/portlets','action=set_status&status='+status)
+            $.ajax({ type: "POST",url: url,data:{name: el.attr('data_portlet_id')}})
+        })
+                                
     }
 
     // Handles custom checkboxes & radios using jQuery Uniform plugin
@@ -631,6 +729,14 @@ var App = function () {
                 }
             });
         }
+        
+        //ajax popup open
+        $(".fancybox-ajax").fancybox({
+            type: "ajax",
+            beforeLoad : function() { 
+                this.href = this.href+'&windowWidth=' + $(window).width()+'&windowHeight=' + $(window).height();
+            }
+        });
     }
 
     // Fix input placeholder issue for IE8 and IE9
@@ -840,6 +946,59 @@ var App = function () {
         }
     }
     //* END:CORE HANDLERS *//
+    
+    var handleMapSidebarSearch = function(){
+        $("#map_sidebar_search").keyup(function(){
+            
+            keywords = $(this).val().toLowerCase();
+            
+            if(keywords.length>0)
+            {
+                $('.map-sidebar-list .list-group-item:not(.map-sidebar-item-search)').hide()
+                
+                $('.map-sidebar-list .map-sidebar-item').each(function(){
+                    text = $(this).html().replace(/<[^>]+>/ig,"").toLowerCase()
+                    
+                    if(text.search(keywords)!=-1)
+                    {
+                        $(this).show()
+                    }
+                })
+            }
+            else
+            {
+                $('.map-sidebar-list .list-group-item').show()
+            }
+            
+        })
+        
+        //reset search
+        $('.map-sidebar-item-search-reset').click(function(){
+            $('.map-sidebar-list .list-group-item').show()
+            $("#map_sidebar_search").val("")
+        })
+        
+        //scroll
+        $(".map-sidebar-list-scroller").slimScroll({
+            color: "#a1b2bd",
+            height: $(".table-sidebar-content").height()
+        })
+    }
+    
+    var handleConfigurationSet = function ()
+    {
+        $('.configuration-set').change(function ()
+        {
+            $.ajax({
+                method: 'POST',
+                url: url_for('configuration/save_ajax', 'action=save'),
+                data: {
+                    name: $(this).attr('name'), 
+                    value: $(this).val()
+                }
+            })
+        })
+    }
 
     return {
 
@@ -875,7 +1034,11 @@ var App = function () {
             handleTooltips(); // handle bootstrap tooltips
             handlePopovers(); // handles bootstrap popovers
             handleAccordions(); //handles accordions 
-            handleModals(); // handle modals            
+            handleModals(); // handle modals    
+            
+            //extra
+            handleMapSidebarSearch()
+            handleConfigurationSet()
         },
 
         //main function to initiate core javascript after ajax complete

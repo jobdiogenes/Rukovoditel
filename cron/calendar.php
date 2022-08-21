@@ -1,28 +1,30 @@
 <?php
 
-	chdir('../');
+chdir(substr(__DIR__, 0, -5));
 
-	define('IS_CRON',true);
-	
+define('IS_CRON', true);
+
 //load core
-	require('includes/application_core.php');
+require('includes/application_core.php');
 
 //include ext plugins
-	require('plugins/ext/application_core.php');
-	
+require('plugins/ext/application_core.php');
+
 //load app lagn
-	if(is_file($v = 'includes/languages/' . CFG_APP_LANGUAGE))
-	{
-		require($v);
-	}	
-	
-	if(is_file($v = 'plugins/ext/languages/' . CFG_APP_LANGUAGE))
-	{
-		require($v);
-	}
-		
-	$app_user = array();
-	
-	$calendar_notification = new calendar_notification();
-	
-	$calendar_notification->send();
+if(is_file($v = 'includes/languages/' . CFG_APP_LANGUAGE))
+{
+    require($v);
+}
+
+if(is_file($v = 'plugins/ext/languages/' . CFG_APP_LANGUAGE))
+{
+    require($v);
+}
+
+$app_users_cache  = users::get_cache();
+
+$app_user = array();
+
+$calendar_notification = new calendar_notification();
+
+$calendar_notification -> send();

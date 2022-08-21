@@ -4,10 +4,17 @@
 <?php echo form_tag('rules_form', url_for('forms_fields_rules/rules','action=save&entities_id=' . $_GET['entities_id'] . (isset($_GET['id']) ? '&id=' . $_GET['id']:'') ),array('class'=>'form-horizontal')) ?>
 <div class="modal-body">
   <div class="form-body ajax-modal-width-790">
+      
+      <div class="form-group">
+	<label class="col-md-3 control-label" for="is_active"><?php echo TEXT_IS_ACTIVE ?></label>
+        <div class="col-md-9">	
+              <p class="form-control-static"><?php echo input_checkbox_tag('is_active',$obj['is_active'],array('checked'=>($obj['is_active']==1 ? 'checked':''))) ?></p>
+        </div>			
+      </div>
   
 <?php 
 $choices = array();
-$fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.type in ('fieldtype_dropdown','fieldtype_radioboxes','fieldtype_user_accessgroups') and f.entities_id='" . _get::int('entities_id') . "' and f.forms_tabs_id=t.id order by t.sort_order, t.name, f.sort_order, f.name");
+$fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.type in ('fieldtype_entity','fieldtype_entity_ajax','fieldtype_entity_multilevel','fieldtype_dropdown','fieldtype_dropdown_multiple','fieldtype_checkboxes','fieldtype_radioboxes','fieldtype_user_accessgroups','fieldtype_grouped_users','fieldtype_boolean_checkbox','fieldtype_boolean','fieldtype_autostatus','fieldtype_stages') and f.entities_id='" . _get::int('entities_id') . "' and f.forms_tabs_id=t.id order by t.sort_order, t.name, f.sort_order, f.name");
 while($v = db_fetch_array($fields_query))
 {
 	$choices[$v['id']] = fields_types::get_option($v['type'],'name',$v['name']); 
@@ -18,12 +25,19 @@ while($v = db_fetch_array($fields_query))
   	<label class="col-md-3 control-label" for="name"><?php echo TEXT_SELECT_FIELD ?></label>
     <div class="col-md-9">	
   	  <?php echo select_tag('fields_id',$choices,$obj['fields_id'],array('class'=>'form-control input-medium required ','onChange'=>'get_fields_choices()')) ?>
-  	  <?php echo tooltip_text(TEXT_AVAILABLE_FIELDS . ': ' . TEXT_FIELDTYPE_DROPDOWN_TITLE . ', ' . TEXT_FIELDTYPE_RADIOBOXES_TITLE)?>
+  	  <?php echo tooltip_text(TEXT_AVAILABLE_FIELDS . ': ' . TEXT_FIELDTYPE_DROPDOWN_TITLE . ', ' . TEXT_FIELDTYPE_RADIOBOXES_TITLE . ', ' . TEXT_FIELDTYPE_CHECKBOXES_TITLE) ?>
     </div>			
   </div>  
   
 	<div id="fields_choices"></div>  
    
+        
+    <div class="form-group">
+  	<label class="col-md-3 control-label" for="sort_order"><?php echo TEXT_SORT_ORDER ?></label>
+        <div class="col-md-9">	
+              <?php echo input_tag('sort_order',$obj['sort_order'],array('class'=>'form-control input-xsmall')) ?>
+        </div>			
+    </div>     
    </div>
 </div>
 

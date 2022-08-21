@@ -7,14 +7,16 @@
 <!-- BEGIN HEAD -->
 <head>
 <meta charset="utf-8"/>
+<meta name = "robots" content = "noindex,nofollow">    
 <title><?php echo $app_title ?></title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport"/>
 <meta content="" name="description"/>
-<meta content="www.rukovoditel.net" name="author"/>
+<?php echo app_author_text() ?>
 <meta name="MobileOptimized" content="320">
 <!-- BEGIN GLOBAL MANDATORY STYLES -->
 <link href="template/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+<link href="template/plugins/line-awesome/css/line-awesome.min.css?v=1.3.0" rel="stylesheet" type="text/css"/>
 <link href="template/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
 <link href="template/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
 <!-- END GLOBAL MANDATORY STYLES -->
@@ -37,6 +39,7 @@
 <script type="text/javascript" src="js/main.js"></script>
 
 <script>
+        var app_cfg_drop_down_menu_on_hover = <?php echo CFG_DROP_DOWN_MENU_ON_HOVER ?>;
 	function keep_session()
 	{
 	  $.ajax({url: '<?php echo url_for("dashboard/","action=keep_session") ?>'});
@@ -48,12 +51,13 @@
 </script>
 
 <link rel="stylesheet" type="text/css" href="css/default.css"/>
+<?php echo app_include_custom_css() ?>
 
 <?php echo render_login_page_background() ?>
 <?php echo app_recaptcha::render_js() ?>
 
 <!-- END THEME STYLES -->
-<link rel="shortcut icon" href="favicon.ico"/>
+<?php echo app_favicon() ?>
 </head>
 <!-- BEGIN BODY -->
 <body class="login">
@@ -107,7 +111,7 @@
 <!-- BEGIN COPYRIGHT -->
 <div class="copyright">
 	 <?php echo (strlen(CFG_APP_COPYRIGHT_NAME)>0 ? '&copy; ' . CFG_APP_COPYRIGHT_NAME . ' ' . date('Y') . '<br>': '') ?>
-    <small><?php echo TEXT_POWERED_BY ?>&nbsp;<a target="_blank" href="https://www.rukovoditel.net" title="<?php echo TEXT_POWERED_BY_TITLE ?>">Rukovoditel</a></small>
+     <?php echo app_powered_by_text() ?>
 </div>
 <!-- END COPYRIGHT -->
 
@@ -119,11 +123,12 @@
 <![endif]-->
 <script src="template/plugins/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
 <script src="template/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="template/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.js?v=2.2.1" type="text/javascript"></script>
+<script src="template/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.js?v=2.2.2" type="text/javascript"></script>
 <script src="template/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
 <script src="template/plugins/jquery.blockui.min.js" type="text/javascript"></script>
 <script src="template/plugins/jquery.cokie.min.js" type="text/javascript"></script>
 <script src="template/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/maskedinput/jquery.maskedinput.js"></script>
 <!-- END CORE PLUGINS -->
 <!-- BEGIN PAGE LEVEL PLUGINS -->
 <script type="text/javascript" src="template/plugins/select2/select2.min.js"></script>

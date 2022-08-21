@@ -44,16 +44,16 @@
   <div class="form-group">
   	<label class="col-md-3 control-label" for="start_date"><?php echo TEXT_DISPLAY_DATE ?></label>
     <div class="col-md-9">	
-  	  <div class="input-group input-large datepicker input-daterange daterange-filter">					
-				<span class="input-group-addon">
-					<i class="fa fa-calendar"></i>
-				</span>
-				<?php echo input_tag('start_date',($obj['start_date']>0 ? date('Y-m-d',$obj['start_date']) :''),array('class'=>'form-control','placeholder'=>TEXT_DATE_FROM))?>
-				<span class="input-group-addon">
-					<i style="cursor:pointer" class="fa fa-refresh" aria-hidden="true" title="<?php echo TEXT_EXT_RESET ?>" onClick="app_reset_date_range_input('daterange-filter','start_date','end_date')"></i>
-				</span>
-				<?php echo input_tag('end_date',($obj['end_date']>0 ? date('Y-m-d',$obj['end_date']) :''),array('class'=>'form-control','placeholder'=>TEXT_DATE_TO))?>			
-			</div>	
+  	<div class="input-group input-large datepicker input-daterange daterange-filter">					
+            <span class="input-group-addon">
+                    <i class="fa fa-calendar"></i>
+            </span>
+            <?php echo input_tag('start_date',($obj['start_date']>0 ? date('Y-m-d',$obj['start_date']) :''),array('class'=>'form-control','placeholder'=>TEXT_DATE_FROM))?>
+            <span class="input-group-addon">
+                    <i style="cursor:pointer" class="fa fa-refresh" aria-hidden="true" title="<?php echo TEXT_RESET ?>" onClick="app_reset_date_range_input('daterange-filter','start_date','end_date')"></i>
+            </span>
+            <?php echo input_tag('end_date',($obj['end_date']>0 ? date('Y-m-d',$obj['end_date']) :''),array('class'=>'form-control','placeholder'=>TEXT_DATE_TO))?>			
+        </div>	
     </div>			
   </div>
   

@@ -2,6 +2,10 @@
 app_timer = function()
 {
   this.timer_interval = false;
+  this.date_start = false
+  this.pause_start = false  
+  this.pause_seconds = 0
+  this.saved_seconds = 0
   
   //open timer panel      
   this.open = function()
@@ -12,6 +16,11 @@ app_timer = function()
   //close timer and close timer panel
   this.close = function()
   {
+      this.date_start = false
+      this.pause_start = false
+      this.pause_seconds = 0
+      this.saved_seconds = 0
+      
     warn_msg = $('.button-timer-close').attr('data-warn-msg');
     
     if(confirm(warn_msg))
@@ -82,11 +91,30 @@ app_timer = function()
     
     this.prepare_buttons()
     
+    //define timer start date
+    if(this.date_start==false)
+    {
+        this.date_start = new Date()
+        this.saved_seconds = parseInt($('#timer-container').attr('data-seconds'))        
+    }
+    
+    //hanle pause click
+    if(this.pause_start!=false)
+    {
+        current_date = new Date()
+        this.pause_seconds += parseInt((current_date.getTime()-this.pause_start.getTime())/1000)
+        this.pause_start = false
+    }
+    var that = this
+        
     //render time every seconds
     this.timer_interval = setInterval(function(){
       //get current seconds
-      seconds = parseInt($('#timer-container').attr('data-seconds'))+1;
-                  
+      //seconds = parseInt($('#timer-container').attr('data-seconds'))+1;
+      
+      current_date = new Date()
+      seconds = parseInt((((current_date.getTime()-that.date_start.getTime())/1000)-that.pause_seconds+that.saved_seconds))
+                                    
       $('#timer-container').attr('data-seconds',seconds)
       
       app_timer_render();
@@ -97,11 +125,23 @@ app_timer = function()
   //timer pause
   this.pause = function()
   {
+      this.pause_start = new Date()
+      
     window.onbeforeunload = ''; 
       
     $('.panel-timer').removeClass('timer-active');
     
     clearInterval(this.timer_interval);
+    
+    //save seconds
+    seconds = parseInt($('#timer-container').attr('data-seconds'));
+    
+    $.ajax({type: "POST",url: $('#timer-container').attr('data-action-url'),data: {
+        seconds:seconds,
+        action:'set_timer',
+        entities_id: $('#timer-container').attr('data-entities-id'),
+        items_id: $('#timer-container').attr('data-items-id')
+        }});
     
     this.prepare_buttons()
   }
@@ -118,6 +158,11 @@ app_timer = function()
   
   this.reset = function()
   {
+      this.date_start = false
+      this.pause_start = false
+      this.pause_seconds = 0
+      this.saved_seconds = 0
+      
     warn_msg = $('.button-timer-reset').attr('data-warn-msg');
     
     if(confirm(warn_msg))

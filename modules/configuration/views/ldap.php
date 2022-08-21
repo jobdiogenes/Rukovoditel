@@ -1,6 +1,8 @@
 
 <h3 class="page-title"><?php echo TEXT_HEADING_LDAP ?></h3>
 
+<p><?php echo TEXT_LDAP_INFO ?></p>
+
 <?php echo form_tag('cfg', url_for('configuration/save','redirect_to=configuration/ldap'),array('class'=>'form-horizontal')) ?>
 <div class="form-body">
 

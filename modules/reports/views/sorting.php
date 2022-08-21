@@ -4,156 +4,110 @@
 
   if($app_redirect_to=='listng_filters')
   {
-    echo form_tag('sorting_form', url_for('entities/listing_filters','entities_id=' . $reports_info['entities_id']));
+    $redirect_url =  url_for('entities/listing_filters','entities_id=' . $reports_info['entities_id']);
   }
   elseif($app_redirect_to=='entityfield_filters')
   {
   	$fields_id = str_replace('entityfield','',$reports_info['reports_type']);
   	$fields_info = db_find('app_fields',$fields_id);
-  	echo form_tag('sorting_form', url_for('entities/entityfield_filters','entities_id=' . $fields_info['entities_id'] . '&fields_id=' . $fields_id));
+  	$redirect_url =  url_for('entities/entityfield_filters','entities_id=' . $fields_info['entities_id'] . '&fields_id=' . $fields_id);
   }
   elseif($app_redirect_to == 'related_records_field_settings')
   {
-  	echo form_tag('sorting_form', url_for('entities/fields_settings','entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id']));
+  	$redirect_url =  url_for('entities/fields_settings','entities_id=' . $_GET['entities_id'] . '&fields_id=' . $_GET['fields_id']);
   }
   elseif($app_redirect_to == 'parent_infopage_filters')
   {
-  	echo form_tag('sorting_form', url_for('entities/parent_infopage_filters','entities_id=' . $reports_info['entities_id']));
+  	$redirect_url =  url_for('entities/parent_infopage_filters','entities_id=' . $reports_info['entities_id']);
   }
   elseif($app_redirect_to == 'infopage_entityfield_filters')
   {
-  	echo form_tag('sorting_form', url_for('entities/infopage_entityfield_filters','entities_id=' . $reports_info['entities_id'] . '&related_entities_id=' . $_GET['related_entities_id'] . '&fields_id=' . $_GET['fields_id']));
+  	$redirect_url =  url_for('entities/infopage_entityfield_filters','entities_id=' . $reports_info['entities_id'] . '&related_entities_id=' . $_GET['related_entities_id'] . '&fields_id=' . $_GET['fields_id']);
   }
   elseif($app_redirect_to=='common_reports')
   {
-    echo form_tag('sorting_form', url_for('ext/common_reports/reports'));
+    $redirect_url =  url_for('ext/common_reports/reports');
+  }
+  elseif($app_redirect_to=='common_filters')
+  {
+  	$redirect_url =  url_for('ext/common_filters/reports');
+  }
+  elseif($app_redirect_to=='item_pivot_tables')
+  {
+  	$redirect_url =  url_for('ext/item_pivot_tables/reports');
   }
   elseif(strstr($app_redirect_to,'funnelchart'))
   {
   	$id = str_replace('funnelchart','',$app_redirect_to);
-  	echo form_tag('sorting_form', url_for('ext/funnelchart/view','id=' . $id . (strlen($app_path) ? '&path=' . $app_path:'')));
+  	$redirect_url =  url_for('ext/funnelchart/view','id=' . $id . (strlen($app_path) ? '&path=' . $app_path:''));
   }
   elseif(strstr($app_redirect_to,'kanban'))
   {
   	$id = str_replace('kanban','',$app_redirect_to);
-  	echo form_tag('sorting_form', url_for('ext/kanban/view','id=' . $id . (strlen($app_path) ? '&path=' . $app_path:'')));
+  	$redirect_url =  url_for('ext/kanban/view','id=' . $id . (strlen($app_path) ? '&path=' . $app_path:''));
+  }
+  elseif(strstr($app_redirect_to,'report_page_block'))
+  {
+  	$id = str_replace('report_page_block','',$app_redirect_to);
+  	$redirect_url =  url_for('ext/report_page/blocks','report_id=' . $id);
   }
   elseif(isset($_GET['path']))
   {
-    echo form_tag('sorting_form', url_for('items/','path=' . $_GET['path']));
+    $redirect_url =  url_for('items/','path=' . $_GET['path']);
   }
   else
   { 
-    echo form_tag('sorting_form', url_for('reports/view','reports_id=' . $reports_info['id']));
+    $redirect_url =  url_for('reports/view','reports_id=' . $reports_info['id']);
   } 
   
-  $fields_access_schema = users::get_fields_access_schema($reports_info['entities_id'],$app_user['group_id']);
-  
+    
   $entities_cfg = new entities_cfg($reports_info['entities_id']);
 ?>
 
 <div class="modal-body">
-
     
-<div><?php echo TEXT_LISTING_SORTING_CFG_INFO ?></div>
-<div><img src="images/arrow_down.png"> <?php echo TEXT_ASCENDING_ORDER  ?></div>
-<div><img src="images/arrow_up.png"> <?php echo TEXT_DESCENDING_ORDER ?></div>
 
-<table width="100%">
-  <tr>
-    <td valign="top" width="45%">
-      <fieldset>
-        <legend><?php echo TEXT_FIELDS_FOR_SORTING ?></legend>
+<div class="form-section" style="margin-top: 15px;">
+    <?= TEXT_FIELDS_FOR_SORTING ?>
+    <span style="float:right;font-size: 13px; color: black;">
+        <img src="images/arrow_down.png"> <?php echo TEXT_ASCENDING_ORDER  ?>&nbsp;&nbsp;&nbsp;<img src="images/arrow_up.png"> <?php echo TEXT_DESCENDING_ORDER ?>
+    </span>
+</div>
+     
 <div class="cfg_listing">        
-  <ul id="fields_for_sorting" class="sortable">
-  <?php
-  
-  $has_sort_by_lastcommentdate = false;
-        
-  if(count($sorting_fields)>0)
-  {
-    
-    if(($key = array_search('lastcommentdate',$sorting_fields))!==false)
-    {
-      if($entities_cfg->get('use_comments')==1)
-      {
-        echo '<li id="form_fields_lastcommentdate_' . $sorting_fields_info['lastcommentdate'] . '"><div><img rel="' . $sorting_fields_info['lastcommentdate']. '" src="images/' . ($sorting_fields_info['lastcommentdate']=='asc' ? 'arrow_down.png':'arrow_up.png') . '" class="condition_icon" id="condition_icon_lastcommentdate"> ' . TEXT_LAST_COMMENT_DATE . '</div></li>';
-      }
-      
-      unset($sorting_fields[$key]);
-      $has_sort_by_lastcommentdate = true;            
-    }
-    
-    if(count($sorting_fields)>0)
-    {    
-      $fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.id in (" . implode(',',$sorting_fields). ") and f.type not in ('fieldtype_action') and  f.entities_id='" . db_input($reports_info['entities_id']) . "' and f.forms_tabs_id=t.id order by field(f.id," . implode(',',$sorting_fields) . ")");
-      while($v = db_fetch_array($fields_query))
-      {
-        //check field access
-        if(isset($fields_access_schema[$v['id']]))
-        {
-          if($fields_access_schema[$v['id']]=='hide') continue;
-        }
-        
-        //skip fieldtype_parent_item_id for deafult listing
-        if($v['type']=='fieldtype_parent_item_id' and $reports_info['parent_id']==0)
-        {
-          continue;      
-        }
-        
-        
-        echo '<li id="form_fields_' . $v['id'] . '_' . $sorting_fields_info[$v['id']] . '"><div><img rel="' . $sorting_fields_info[$v['id']]. '" src="images/' . ($sorting_fields_info[$v['id']]=='asc' ? 'arrow_down.png':'arrow_up.png') . '" class="condition_icon" id="condition_icon_' . $v['id'] . '"> ' . fields_types::get_option($v['type'],'name',$v['name']) . '</div></li>';
-      }
-    }
-  }
-  ?> 
+  <ul id="fields_for_sorting" class="sortable" style="padding-top: 0">
+
   </ul>         
 </div>
               
-      </fieldset>
-    </td>
-    <td style="padding-left: 25px;" valign="top">
-      <fieldset>
-        <legend><?php echo TEXT_FIELDS_EXCLUDED_FROM_SORTING ?></legend>
-<div class="cfg_listing">        
-<ul id="fields_excluded_from_sorting" class="sortable">
-<?php
-
-if(!$has_sort_by_lastcommentdate and $entities_cfg->get('use_comments')==1)
+   
+<?php 
+//print_rr($sorting_fields);
+$choices = [];
+if($entities_cfg->get('use_comments') and users::has_comments_access('view', users::get_comments_access_schema($reports_info['entities_id'], $app_user['group_id'])))
 {
-  echo '<li id="form_fields_lastcommentdate_asc"><div><img rel="asc" src="images/arrow_down.png" class="condition_icon" id="condition_icon_lastcommentdate" > ' . TEXT_LAST_COMMENT_DATE . '</div></li>';
+    $choices['lastcommentdate'] = TEXT_LAST_COMMENT_DATE;
 }
 
-$fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where " . (count($sorting_fields)>0 ? "f.id not in (" . implode(',',$sorting_fields). ") and " : "") . " f.type not in (" . fields_types::get_type_list_excluded_in_sorting() . ")  and  f.entities_id='" . db_input($reports_info['entities_id']) . "' and f.forms_tabs_id=t.id order by t.sort_order, t.name, f.sort_order, f.name");
-while($v = db_fetch_array($fields_query))
+$fields_query = fields::get_query($reports_info['entities_id'], "and f.type not in (" . fields_types::get_type_list_excluded_in_sorting() . ")");
+while($fields = db_fetch_array($fields_query))
 {
-
-  //check field access
-  if(isset($fields_access_schema[$v['id']]))
-  {
-    if($fields_access_schema[$v['id']]=='hide') continue;
-  }
-  
-  //skip fieldtype_parent_item_id for deafult listing
-  if($v['type']=='fieldtype_parent_item_id' and $reports_info['parent_id']==0)
-  {
-    continue;      
-  }
-      
-  echo '<li id="form_fields_' . $v['id'] . '_asc"><div><img rel="asc" src="images/arrow_down.png" class="condition_icon" id="condition_icon_' . $v['id'] . '" > ' . fields_types::get_option($v['type'],'name',$v['name']). '</div></li>';
+    //check field access
+    if(isset($fields_access_schema[$fields['id']]) and $fields_access_schema[$fields['id']] == 'hide')
+    {
+        continue;
+    }
+    
+    $choices[$fields['id']] = fields::get_name($fields);
 }
-?> 
-</ul>
-</div>                     
-      </fieldset>
-    </td>
-  </tr>
-</table>
+
+echo select_tag('entity_fields[]',$choices,$sorting_fields,['class'=>'form-control chosen-select','multiple'=>'multiple']) ?>
 
 </div>
 
 
 <script>
+        
   function prepare_condition_icons()
   {
     $('#fields_excluded_from_sorting .condition_icon').each(function(){ $(this).css('opacity',0.5) })
@@ -187,27 +141,42 @@ while($v = db_fetch_array($fields_query))
      })
           
   }
+  
+  function render_fields_for_sorting()
+  {
+      $('#fields_for_sorting').load('<?php echo url_for("reports/sorting","action=render_fields_for_sorting&reports_id=" . $reports_info["id"])?>')
+  }
     
   $(function() {
       prepare_condition_icons();
                
     	$( "ul.sortable" ).sortable({
-    		connectWith: "ul",
-        cancel:'.condition_icon', 
+    		connectWith: "ul.sortable",
+                cancel:'.condition_icon', 
     		update: function(event,ui)
-        {
-          prepare_condition_icons()
-            
-          data = '';  
-          $( "ul.sortable" ).each(function() {data = data +'&'+$(this).attr('id')+'='+$(this).sortable("toArray") });                            
-          data = data.slice(1)                      
-          $.ajax({type: "POST",url: '<?php echo url_for("reports/sorting","action=set_sorting&reports_id=" . $_GET["reports_id"])?>',data: data});
-        }
+                {
+                  
+                  data = '';  
+                  $( "ul.sortable" ).each(function() {data = data +'&'+$(this).attr('id')+'='+$(this).sortable("toArray") });                            
+                  data = data.slice(1)                      
+                  $.ajax({type: "POST",url: '<?php echo url_for("reports/sorting","action=set_sorting&reports_id=" . $reports_info["id"])?>',data: data});
+                }
     	});
+        
+        $('#entity_fields').change(function(){
+            //console.log($(this).val())
+            $.ajax({type: "POST",url: '<?php echo url_for("reports/sorting","action=set_sorting_fields&reports_id=" . $reports_info["id"])?>',data: {
+                    sorting_fields: $(this).val()
+            }}).done(function(){
+                render_fields_for_sorting()
+            });
+        })
+        
+        render_fields_for_sorting()
       
   });  
 </script>
  
-<?php echo ajax_modal_template_footer() ?>
+<?php echo ajax_modal_template_footer('hide-save-button','<a href="' . $redirect_url . '" class="btn btn-primary">' . TEXT_SAVE . '</a>') ?>
 
 </form> 

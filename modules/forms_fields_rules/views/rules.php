@@ -5,7 +5,8 @@
 
 <p><?php echo TEXT_FORMS_FIELDS_DISPLAY_RULES_INFO ?></p>
 
-<?php echo button_tag(TEXT_BUTTON_ADD_NEW_RULE,url_for('forms_fields_rules/rules_form','entities_id=' . $_GET['entities_id']),true) ?>
+<?php echo button_tag(TEXT_BUTTON_ADD_NEW_RULE,url_for('forms_fields_rules/rules_form','entities_id=' . $_GET['entities_id']),true) . ' ' ?>
+<?php echo button_tag(TEXT_SORT,url_for('forms_fields_rules/sort','entities_id=' . $_GET['entities_id']),true,['class'=>'btn btn-default']) ?>
 
 <div class="table-scrollable">
 <table class="table table-striped table-bordered table-hover">
@@ -14,57 +15,32 @@
     
     <th><?php echo TEXT_ACTION?></th>
     <th>#</th>    
+    <th><?php echo TEXT_IS_ACTIVE ?></th>
     <th width="100%"><?php echo TEXT_RULE_FOR_FIELD ?></th>    
     <th><?php echo TEXT_VALUES ?></th>
     <th><?php echo TEXT_DISPLAY_FIELDS ?></th>    
     <th><?php echo TEXT_HIDE_FIELDS ?></th>    
+    <th><?php echo TEXT_SORT_ORDER ?></th>    
   </tr>
 </thead>
 <tbody>
 <?php
-$form_fields_query = db_query("select r.*, f.name, f.type, f.id as fields_id, f.configuration from app_forms_fields_rules r, app_fields f where r.fields_id=f.id and r.entities_id='" . _get::int('entities_id'). "'");
+$form_fields_query = db_query("select r.*, f.name, f.type, f.id as fields_id, f.configuration from app_forms_fields_rules r, app_fields f where r.fields_id=f.id and r.entities_id='" . _get::int('entities_id'). "' order by r.sort_order, f.name");
 
 if(db_num_rows($form_fields_query)==0) echo '<tr><td colspan="9">' . TEXT_NO_RECORDS_FOUND. '</td></tr>'; 
 
 while($v = db_fetch_array($form_fields_query)):
 ?>
 <tr>  
-  <td style="white-space: nowrap;"><?php echo button_icon_delete(url_for('forms_fields_rules/rules_delete','id=' . $v['id'] . '&entities_id=' . $_GET['entities_id'])) . ' ' . button_icon_edit(url_for('forms_fields_rules/rules_form','id=' . $v['id']. '&entities_id=' . $_GET['entities_id'])) ?></td>
+  <td style="white-space: nowrap;">
+      <?php echo button_icon_delete(url_for('forms_fields_rules/rules_delete','id=' . $v['id'] . '&entities_id=' . $_GET['entities_id'])) . ' ' . 
+          button_icon_edit(url_for('forms_fields_rules/rules_form','id=' . $v['id']. '&entities_id=' . $_GET['entities_id'])) . ' ' . 
+          button_icon(TEXT_COPY,'fa fa-files-o',url_for('forms_fields_rules/rules','action=copy&id=' . $v['id']. '&entities_id=' . $_GET['entities_id']),false,['onClick'=>'return confirm("' . addslashes(TEXT_COPY). '?")']) ?></td>
   <td><?php echo $v['id'] ?></td>
+  <td><?php echo render_bool_value($v['is_active']) ?></td>
   <td><?php echo fields_types::get_option($v['type'],'name',$v['name']) ?></td>  
   <td>
-
-<?php  
-	if(strlen($v['choices']))
-	{		
-		if($v['type']=='fieldtype_user_accessgroups')
-		{
-			foreach(explode(',',$v['choices']) as $id)
-			{
-				echo access_groups::get_name_by_id($id) . '<br>';
-			}
-		}
-		else
-		{	
-			$cfg = new fields_types_cfg($v['configuration']);
-			
-			if($cfg->get('use_global_list')>0)
-			{
-				$choices_query = db_query("select * from app_global_lists_choices where lists_id = '" . db_input($cfg->get('use_global_list')). "' and id in (" . $v['choices'] . ") order by sort_order, name");
-			}
-			else 
-			{
-				$choices_query = db_query("select * from app_fields_choices where fields_id = '" . db_input($v['fields_id']). "' and id in (" . $v['choices'] . ") order by sort_order, name");
-			}
-			
-			while($choices = db_fetch_array($choices_query))
-			{
-				echo $choices['name'] . '<br>';
-			}
-		}
-	}
-?>
-
+    <?php echo forms_fields_rules::get_chocies_values_by_field_type($v) ?>
   </td>
   <td>
 
@@ -92,8 +68,10 @@ while($v = db_fetch_array($form_fields_query)):
 		}
 	} 
 ?>
-  
+      
   </td>
+  
+  <td><?php echo $v['sort_order'] ?></td>
      
 </tr>  
 <?php endwhile ?>

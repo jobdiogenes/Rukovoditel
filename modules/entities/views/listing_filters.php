@@ -34,6 +34,8 @@
 </table>
 </div>
 
+<?php echo link_to(TEXT_BUTTON_BACK, url_for('filters_panels/panels','entities_id=' . _get::int('entities_id')),array('class'=>'btn btn-default'))?>
+
 
 
 

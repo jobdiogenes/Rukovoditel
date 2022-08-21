@@ -7,6 +7,11 @@
     {
       $this->messages = array();
     }
+    
+    function count()
+    {
+    	return count($this->messages);
+    }
 
     function add($message, $type = '') 
     {

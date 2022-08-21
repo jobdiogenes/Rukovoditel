@@ -236,7 +236,7 @@ window.MapBBCode = L.Class.extend({
 		if( !iseditor && this._hideClassPresent(el) )
 			return;
 		var mapDiv = document.createElement('div');
-		mapDiv.style.width = iseditor ? '100%' : this.options.fullFromStart ? '100%' : this._px(this.options.viewWidth);
+		mapDiv.style.maxWidth = iseditor ? '100%' : this.options.fullFromStart ? '100%' : this._px(this.options.viewWidth);
 		mapDiv.style.height = iseditor ? this._px(this.options.editorHeight) : this.options.fullFromStart ? this._px(this.options.fullViewHeight) : this._px(this.options.viewHeight);
 		el.appendChild(mapDiv);
 		mapDiv.storedBBCode = bbcode;
@@ -278,9 +278,9 @@ window.MapBBCode = L.Class.extend({
 			fs.on('clicked', function() {
 				var style = map.getContainer().style;
 				if( !isFull && !oldSize )
-					oldSize = [style.width, style.height];
+					oldSize = [style.maxWidth, style.height];
 				isFull = !isFull;
-				style.width = isFull ? '100%' : oldSize[0];
+				style.maxWidth = isFull ? '100%' : oldSize[0];
 				style.height = isFull ? this._px(this.options.fullViewHeight) : oldSize[1];
 				map.invalidateSize();
 				fs.setBgPos([isFull ? 26 : 0, 0]);

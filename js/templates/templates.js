@@ -47,9 +47,14 @@ function use_entity_template(templates_id)
               
               if($(this).val()==fields_value)
               {
-                $(this).attr('checked',true)
+                $(this).attr('checked',true).trigger('change')
                 $('#uniform-'+$(this).attr('id')+' span').addClass('checked')
-              } 
+              }
+              else
+              {
+              	$(this).attr('checked',false)
+                $('#uniform-'+$(this).attr('id')+' span').removeClass('checked')
+              }
             })
           break;  
         case 'fieldtype_checkboxes':            
@@ -78,7 +83,7 @@ function use_entity_template(templates_id)
             $('#fields_'+fields_id).trigger("chosen:updated")
           break;        
         default:  
-            $('#fields_'+fields_id).val(fields_value)
+            $('#fields_'+fields_id).val(fields_value).trigger('change');
             
             if($('#fields_'+fields_id).hasClass('chosen-select'))
             {

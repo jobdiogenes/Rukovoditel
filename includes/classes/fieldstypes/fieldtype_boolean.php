@@ -21,6 +21,13 @@ class fieldtype_boolean
                    'tooltip_icon'=>TEXT_DEFAULT_TEXT_INFO,
                    'params'=>array('class'=>'form-control input-medium'));
     
+    $cfg[] = array(
+    		'title'=>TEXT_DEFAULT_VALUE,
+    		'name'=>'default_value',
+    		'type'=>'dropdown',
+    		'choices'=>array(''=>'','true'=>TEXT_BOOLEAN_TRUE,'false'=>TEXT_BOOLEAN_FALSE),
+    		'params'=>array('class'=>'form-control input-small'));
+    
     $cfg[] = array('title'=>TEXT_WIDHT, 
                    'name'=>'width',
                    'type'=>'dropdown',
@@ -56,6 +63,8 @@ class fieldtype_boolean
     $choices = self::get_choices($field, $add_empty);
         
     $default_id = (!$add_empty ? 'true':'');
+    
+    if(strlen($cfg->get('default_value'))) $default_id = $cfg->get('default_value');
                  
     $value = (strlen($obj['field_' . $field['id']])>0 ? $obj['field_' . $field['id']] : $default_id); 
     

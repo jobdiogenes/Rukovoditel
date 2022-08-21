@@ -1,7 +1,7 @@
 
 <?php echo ajax_modal_template_header(TEXT_HEADING_FIELD_IFNO) ?>
 
-<?php echo form_tag('fields_form', url_for('entities/fields','action=save' . (isset($_GET['id']) ? '&id=' . $_GET['id']:'') ),array('class'=>'form-horizontal')) ?>
+<?php echo form_tag('fields_form', url_for('entities/fields','action=save' . (isset($_GET['id']) ? '&id=' . $_GET['id']:'') ),array('class'=>'form-horizontal','enctype'=>'multipart/form-data')) ?>
 <div class="modal-body">
   <div class="form-body ajax-modal-width-790">
      
@@ -17,6 +17,7 @@ if(count($forms_tabs_choices)==1) echo input_hidden_tag('forms_tabs_id',key($for
   <li class="active"><a href="#general_info"  data-toggle="tab"><?php echo TEXT_GENERAL_INFO ?></a></li>
   <li><a href="#is_required_tab"  data-toggle="tab"><?php echo TEXT_IS_REQUIRED ?></a></li>
   <li><a href="#tooltip"  data-toggle="tab"><?php echo TEXT_TOOLTIP ?></a></li>  
+  <li><a href="#access_tab"  data-toggle="tab"><?php echo TEXT_ACCESS ?></a></li>
   <li><a href="#note"  data-toggle="tab"><?php echo TEXT_NOTE ?></a></li>
 </ul>
  
@@ -36,7 +37,7 @@ if(count($forms_tabs_choices)==1) echo input_hidden_tag('forms_tabs_id',key($for
     <div class="form-group">
     	<label class="col-md-3 control-label" for="name"><?php echo tooltip_icon(TEXT_FIELD_NAME_INFO) . TEXT_NAME ?></label>
       <div class="col-md-9">	
-    	  <?php echo input_tag('name',$obj['name'],array('class'=>'form-control input-large required')) ?>        
+    	  <?php echo input_tag('name',$obj['name'],array('class'=>'form-control input-large required autofocus')) ?>        
       </div>			
     </div>
     
@@ -50,7 +51,7 @@ if(count($forms_tabs_choices)==1) echo input_hidden_tag('forms_tabs_id',key($for
     <div class="form-group">
     	<label class="col-md-3 control-label" for="type"><?php echo tooltip_icon(TEXT_FIELD_TYPE_INFO) . TEXT_TYPE ?></label>
       <div class="col-md-9">	
-    	  <?php echo select_tag('type',fields_types::get_choices(), $obj['type'],array('class'=>'form-control input-large required','onChange'=>'fields_types_configuration(this.value)')) ?>        
+    	  <?php echo select_tag('type',fields_types::get_choices(), $obj['type'],array('class'=>'form-control input-xlarge required chosen-select','onChange'=>'fields_types_configuration(this.value)')) ?>        
       </div>			
     </div>
     
@@ -85,21 +86,73 @@ if(count($forms_tabs_choices)==1) echo input_hidden_tag('forms_tabs_id',key($for
   <div class="tab-pane fade" id="tooltip">
   
     <div class="form-group">
-    	<label class="col-md-3 control-label" for="tooltip"><?php echo TEXT_TOOLTIP ?></label>
+    	<label class="col-md-3 control-label" for="tooltip"><?php echo tooltip_icon(TEXT_TOOLTIP_INFO) . TEXT_TOOLTIP ?></label>
       <div class="col-md-9">	
-    	  <?php echo textarea_tag('tooltip',$obj['tooltip'],array('rows'=>3,'class'=>'form-control')) ?>
-        <?php echo tooltip_text(TEXT_TOOLTIP_INFO); ?>
+    	  <?php echo textarea_tag('tooltip',$obj['tooltip'],array('rows'=>3,'class'=>'form-control textarea-small')) ?>
+        <div style="padding-top: 5px;"><label><?php echo input_checkbox_tag('tooltip_display_as','icon',array('checked'=>$obj['tooltip_display_as'])) . TEXT_TOOLTIP_DISPLAY_AS_ICON  . ' ' . tooltip_icon(TEXT_TOOLTIP_DISPLAY_AS_ICON_INFO) ?></label></div>
+        <div style="padding-top: 5px;"><label><?php echo input_checkbox_tag('tooltip_in_item_page','1',array('checked'=>$obj['tooltip_in_item_page'])) . TEXT_DISPLAY_ON_ITEM_PAGE ?></label></div>
       </div>			
     </div>
     
-    <div class="form-group">
-    	<label class="col-md-3 control-label" for="tooltip_display_as"><?php echo tooltip_icon(TEXT_TOOLTIP_DISPLAY_AS_ICON_INFO) . TEXT_TOOLTIP_DISPLAY_AS_ICON ?></label>
+   <div class="form-group tooltip_item_page">
+    	<label class="col-md-3 control-label" for="tooltip"><?php echo TEXT_TOOLTIP_ON_ITEM_PAGE ?></label>
       <div class="col-md-9">	
-    	  <div class="checkbox-list"><label class="checkbox-inline"><?php echo input_checkbox_tag('tooltip_display_as','icon',array('checked'=>$obj['tooltip_display_as'])) ?></label></div>        
+    	  <?php echo textarea_tag('tooltip_item_page',$obj['tooltip_item_page'],array('rows'=>3,'class'=>'form-control textarea-small')) ?>        
       </div>			
     </div>    
      
   </div>  
+  <div class="tab-pane fade" id="access_tab">
+  	<p><?php echo TEXT_FIELD_ACCESS_INFO ?></p>
+  	
+<?php 
+    $access_choices_default = array('yes'=>TEXT_YES,'view'=>TEXT_VIEW_ONLY,'hide'=>TEXT_HIDE);
+    $access_choices_internal = array('yes'=>TEXT_YES,'hide'=>TEXT_HIDE);
+    
+    $access_choices = (in_array($obj['type'],array('fieldtype_id','fieldtype_date_added','fieldtype_date_updated','fieldtype_created_by')) ? $access_choices_internal : $access_choices_default);
+?>  	
+  	
+      <div class="form-group">
+	  	<label class="col-md-3 control-label" for="name"><?php echo TEXT_ACCESS ?></label>
+	    <div class="col-md-9">	
+	  	  <?php echo select_tag('access_template',[''=>'']+$access_choices, '',array('class'=>'form-control input-medium')) ?>
+	    </div>			
+	  </div> 
+	  
+<script>
+$(function(){
+	$('#access_template').change(function(){
+		$('.acess-group-cfg').val($(this).val());
+	})
+})
+</script>
+  	
+<?php 
+
+$groups_query = db_fetch_all('app_access_groups','','sort_order, name');
+while($groups = db_fetch_array($groups_query))
+{
+    $entities_access_schema = users::get_entities_access_schema($_GET['entities_id'],$groups['id']);
+    
+    if(!in_array('view',$entities_access_schema) and  !in_array('view_assigned',$entities_access_schema) and $_GET['entities_id']!=1) continue;
+            
+    $access_schema = users::get_fields_access_schema($_GET['entities_id'],$groups['id']);
+    
+    $value = (isset($access_schema[$obj['id']]) ? $access_schema[$obj['id']] : 'yes');
+    
+?>  	
+  	
+	  <div class="form-group">
+	  	<label class="col-md-3 control-label" for="name"><?php echo $groups['name'] ?></label>
+	    <div class="col-md-9">	
+	  	  <?php echo select_tag('access[' . $groups['id']. ']',$access_choices, $value,array('class'=>'form-control input-medium acess-group-cfg access_group_' . $groups['id'])) ?>
+	    </div>			
+	  </div> 
+<?php 
+  } 
+?>	  
+	  
+  </div>
   
   <div class="tab-pane fade" id="note">
 	  <div class="form-group">
@@ -125,28 +178,48 @@ if(count($forms_tabs_choices)==1) echo input_hidden_tag('forms_tabs_id',key($for
   $(function() { 
     $('#fields_form').validate({ignore:'',
     	
-			submitHandler: function(form){
-				app_prepare_modal_action_loading(form)
-				form.submit();
-			},
+        submitHandler: function(form){
+                app_prepare_modal_action_loading(form)
+                return true;
+        },
     
-      invalidHandler: function(e, validator) {
-			var errors = validator.numberOfInvalids();
-      
-        if (errors) {
-  				var message = '<?php echo TEXT_ERROR_GENERAL ?>';
-  				$("div#form-error-container").html('<div class="alert alert-danger">'+message+'</div>');
-  				$("div#form-error-container").show();
-          $("div#form-error-container").delay(5000).fadeOut();				
-  			}         
-		}});
+        invalidHandler: function(e, validator) 
+        {
+	
+            var errors = validator.numberOfInvalids();
+
+            if (errors) {
+                var message = '<?php echo TEXT_ERROR_GENERAL ?>';
+                $("div#form-error-container").html('<div class="alert alert-danger">'+message+'</div>');
+                $("div#form-error-container").show();
+                 $("div#form-error-container").delay(5000).fadeOut();				
+            }         
+        }});
     
                     
     fields_types_configuration($('#type').val());
     
     check_is_heading_option()
+
+    check_tooltip_item_page();
+
+    $('#tooltip_in_item_page').change(function(){
+    	check_tooltip_item_page();
+    })
                                                                               
   });
+
+function check_tooltip_item_page()
+{
+	if($('#tooltip_in_item_page').prop('checked'))
+	{
+		$('.tooltip_item_page').hide();
+	}
+	else
+	{
+		$('.tooltip_item_page').show();
+	}
+}
   
 function fields_types_configuration(field_type)
 { 
@@ -168,11 +241,32 @@ function fields_types_configuration(field_type)
    
 }  
 
+//ajax configuration
+function fields_types_ajax_configuration(name,value)
+{   		
+	field_type = $('#type').val();
+	
+  $('#fields_types_ajax_configuration_'+name).html('<div class="ajax-loading"></div>');
+   
+  $('#fields_types_ajax_configuration_'+name).load('<?php echo url_for("entities/fields_ajax_configuration")?>',{name: name, value: value, field_type:field_type, id:'<?php echo $obj["id"] ?>',entities_id:'<?php echo $_GET["entities_id"]?>'},function(response, status, xhr) {
+    if (status == "error") {                                 
+       $(this).html('<div class="alert alert-error"><b>Error:</b> ' + xhr.status + ' ' + xhr.statusText+'<div>'+response +'</div></div>')                    
+    }
+    else
+    {
+      appHandleUniform();
+      
+      jQuery(window).resize();      
+    }    
+  });  
+   
+} 
+
 function check_is_heading_option()
 {
    selected_type = $('#type').val()
    
-   if($.inArray(selected_type,["fieldtype_section","fieldtype_input_numeric_comments","fieldtype_input_url","fieldtype_attachments","fieldtype_input_file","fieldtype_image","fieldtype_textarea_wysiwyg","fieldtype_formula","fieldtype_related_records","fieldtype_boolean"])==-1)
+   if($.inArray(selected_type,["fieldtype_google_map_nested","fieldtype_yandex_map_nested","fieldtype_yandex_map_directions","fieldtype_yandex_map","fieldtype_color","fieldtype_nested_calculations","fieldtype_subentity_form","fieldtype_input_encrypted","fieldtype_textarea_encrypted","fieldtype_video","fieldtype_ajax_request","fieldtype_digital_signature","fieldtype_time","fieldtype_iframe","fieldtype_input_protected","fieldtype_google_map","fieldtype_mapbbcode","fieldtype_todo_list","fieldtype_mysql_query","fieldtype_image_map","fieldtype_mind_map","fieldtype_section","fieldtype_input_numeric_comments","fieldtype_input_url","fieldtype_attachments","fieldtype_input_file","fieldtype_image","fieldtype_image_ajax","fieldtype_textarea_wysiwyg","fieldtype_formula","fieldtype_related_records","fieldtype_boolean","fieldtype_boolean_checkbox"])==-1)
    {
      $('#is-heading-container').show() 
    }

@@ -1,6 +1,8 @@
 <?php 
 
-chdir('../');
+chdir(substr(__DIR__,0,-4));
+
+define('IS_CRON',true);
 
 //load core
 require('includes/application_core.php');

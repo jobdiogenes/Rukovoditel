@@ -6,17 +6,19 @@
 <?php  	
   $is_new_item = true;
   $app_items_form_name = 'registration_form';
-  $excluded_fileds_types = "'fieldtype_user_status','fieldtype_user_skin','fieldtype_users'";
+  $excluded_fileds_types = "'fieldtype_user_status','fieldtype_user_skin','fieldtype_users','fieldtype_users_ajax'";
   
-  if(count(explode(',',CFG_PUBLIC_REGISTRATION_USER_GROUP))==1)
+  if(strlen(CFG_PUBLIC_REGISTRATION_USER_GROUP)!=0 and count(explode(',',CFG_PUBLIC_REGISTRATION_USER_GROUP))==1)
   {
   	$excluded_fileds_types .=",'fieldtype_user_accessgroups'";
   }
-  
-  $fields_where_sql = (strlen(CFG_PUBLIC_REGISTRATION_HIDDEN_FIELDS) ? " and f.id not in (" . CFG_PUBLIC_REGISTRATION_HIDDEN_FIELDS . ") " : '');
+      
+  $fields_where_sql = (strlen(CFG_PUBLIC_REGISTRATION_HIDDEN_FIELDS) ? " and f.id not in (" . db_input_in(CFG_PUBLIC_REGISTRATION_HIDDEN_FIELDS) . ") " : '');
     
 ?>
 
+<div class="items-form-conteiner">
+    
 <?php echo form_tag($app_items_form_name, url_for('users/registration','action=save'),array('enctype'=>'multipart/form-data','class'=>'form-horizontal')) ?>
 <div class="form-body">
     
@@ -38,27 +40,19 @@
   
   $obj = db_show_columns('app_entity_1');
   
+  $html = '';
+  
   if($count_tabs>1)
   {
     $count = 0;
-    
-    //put tabs heading html in array
-    $html_tab = array();
-    
-    $tabs_query = db_fetch_all('app_forms_tabs',"entities_id='" . db_input($current_entity_id) . "' order by  sort_order, name");
-    while($tabs = db_fetch_array($tabs_query))
-    {
-      $html_tab[$tabs['id']] = '<li class="form_tab_' . $tabs['id'] . ($count==0 ? ' active':'') . '"><a data-toggle="tab" href="#form_tab_' . $tabs['id'] . '">' . $tabs['name'] . '</a></li>';
-      $count++;
-    }
-              
+                
     $count_tabs = 0;
     
     //put tags content html in array    
     $html_tab_content = array();
     
-    $tabs_query = db_fetch_all('app_forms_tabs',"entities_id='" . db_input($current_entity_id) . "' order by  sort_order, name");
-    while($tabs = db_fetch_array($tabs_query))
+    $tabs_tree = forms_tabs::get_tree($current_entity_id);    
+    foreach($tabs_tree as $tabs)
     {
               
       $html_tab_content[$tabs['id']] = '
@@ -66,11 +60,11 @@
       ' . (strlen($tabs['description']) ? '<p>' . $tabs['description'] . '</p>' : '');
       
       $count_fields = 0;
-      $fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.type not in (" . fields_types::get_type_list_excluded_in_form() . "," . $excluded_fileds_types . ") and  f.entities_id='" . db_input($current_entity_id) . "' and f.forms_tabs_id=t.id and f.forms_tabs_id='" . db_input($tabs['id']) . "' {$fields_where_sql} order by t.sort_order, t.name, f.sort_order, f.name");
+      $fields_query = db_query("select f.*, t.name as tab_name from app_fields f, app_forms_tabs t where f.type not in (" . fields_types::get_type_list_excluded_in_form() . "," . $excluded_fileds_types . ") and  f.entities_id='" . db_input($current_entity_id) . "' and f.forms_tabs_id=t.id and f.forms_tabs_id='" . db_input($tabs['id']) . "' {$fields_where_sql}  and length(f.forms_rows_position)=0  order by t.sort_order, t.name, f.sort_order, f.name");
       while($v = db_fetch_array($fields_query))
-      {
+      {          
         //check field access
-        if(isset($fields_access_schema[$v['id']])) continue;
+        if(isset($fields_access_schema[$v['id']])) continue;                
         
         //handle params from GET
         if(isset($_GET['fields'][$v['id']])) $obj['field_' . $v['id']] = db_prepare_input($_GET['fields'][$v['id']]);
@@ -78,8 +72,8 @@
         //handle params from POST
         if(isset($_POST['fields'][$v['id']])) $obj['field_' . $v['id']] = db_prepare_input($_POST['fields'][$v['id']]);
         
-        if($v['type']=='fieldtype_user_language' and count(app_get_languages_choices())==1)
-        {
+        if($v['type']=='fieldtype_user_language')
+        {            
         	$html .= input_hidden_tag('fields[' . $v['id'] . ']',CFG_APP_LANGUAGE);
         	continue;
         }
@@ -120,10 +114,20 @@
         $count_fields++;     
       }
       
+      //handle rows
+      $forms_rows = new forms_rows($current_entity_id,$tabs['id']);
+      $forms_rows->fields_access_schema = $fields_access_schema;
+      $forms_rows->obj = $obj;
+      $forms_rows->is_new_item = $is_new_item;
+      $forms_rows->parent_entity_item_id = 0;
+      $forms_rows->excluded_fileds_types = $excluded_fileds_types;
+      $forms_rows->hidden_fields = CFG_PUBLIC_REGISTRATION_HIDDEN_FIELDS;
+      $html_tab_content[$tabs['id']] .= $forms_rows_html = $forms_rows->render();
+      
       $html_tab_content[$tabs['id']] .= '</div>';
       
       //if there is no fields for this tab then remove content from array
-      if($count_fields==0)
+      if($count_fields==0 and !strlen($forms_rows_html))
       {
         unset($html_tab_content[$tabs['id']]);
       }
@@ -132,18 +136,11 @@
     }
         
     
-    $html = '<ul class="nav nav-tabs" id="form_tabs">';
-    
-    //build tabs heading and skip tabs with no fields
-    foreach($html_tab_content as $tab_id=>$content)
-    {
-      $html .= $html_tab[$tab_id];   
-    }
-    
-    $html .= '</ul>';
+    //render nav-tabs
+    $html = '<ul class="nav nav-tabs" id="form_tabs"> ' . forms_tabs::render_tabs_nav($current_entity_id) . '</ul>';
     
     $html .= '<div class="tab-content">';
-    
+        
     //build tabs content
     foreach($html_tab_content as $tab_id=>$content)
     {
@@ -155,9 +152,12 @@
   }
   else
   {  
+      $tabs_query = db_fetch_all('app_forms_tabs',"entities_id='" . db_input($current_entity_id) . "' order by  sort_order, name");
+      $tabs = db_fetch_array($tabs_query);
+      
   	$count_fields = 0;
     $html = '';
-    $fields_query = db_query("select f.* from app_fields f where f.type not in (" . fields_types::get_type_list_excluded_in_form(). "," . $excluded_fileds_types . ") and  f.entities_id='" . db_input($current_entity_id) . "' {$fields_where_sql} order by f.sort_order, f.name");
+    $fields_query = db_query("select f.* from app_fields f where f.type not in (" . fields_types::get_type_list_excluded_in_form(). "," . $excluded_fileds_types . ") and  f.entities_id='" . db_input($current_entity_id) . "' {$fields_where_sql}  and length(f.forms_rows_position)=0  order by f.sort_order, f.name");
     while($v = db_fetch_array($fields_query))
     {       
       //check field access
@@ -169,7 +169,7 @@
       //handle params from POST
       if(isset($_POST['fields'][$v['id']])) $obj['field_' . $v['id']] = db_prepare_input($_POST['fields'][$v['id']]);
       
-      if($v['type']=='fieldtype_user_language' and count(app_get_languages_choices())==1)
+      if($v['type']=='fieldtype_user_language')
       {
       	$html .= input_hidden_tag('fields[' . $v['id'] . ']',CFG_APP_LANGUAGE);
       	continue;
@@ -211,6 +211,16 @@
       
       $count_fields++;
     }
+    
+    //handle rows
+    $forms_rows = new forms_rows($current_entity_id,$tabs['id']);
+    $forms_rows->fields_access_schema = $fields_access_schema;
+    $forms_rows->obj = $obj;
+    $forms_rows->is_new_item = $is_new_item;
+    $forms_rows->parent_entity_item_id = 0;
+    $forms_rows->excluded_fileds_types = $excluded_fileds_types;
+    $forms_rows->hidden_fields = CFG_PUBLIC_REGISTRATION_HIDDEN_FIELDS;
+    $html .= $forms_rows->render();
             
   }
   
@@ -231,13 +241,37 @@
  
 <?php 
 
+
+if(strlen(CFG_PUBLIC_REGISTRATION_USER_AGREEMENT))
+{
+	echo '
+	   <div class="form-group form-group-single-checkbox">
+	     <label class="col-md-12 control-label">' . input_checkbox_tag('user_agreement','1',array('class'=>'required')) . ' ' . CFG_PUBLIC_REGISTRATION_USER_AGREEMENT  . '</label>
+	     <label for="user_agreement" class="col-md-12 control-label error"></label>
+		 </div>
+	  ';
+}
+
+
+$forms_wizard = new forms_wizard($app_items_form_name, $current_entity_id, $entity_cfg);
+
+$button_title = (strlen(CFG_REGISTRATION_BUTTON_TITLE) ? CFG_REGISTRATION_BUTTON_TITLE : TEXT_BUTTON_REGISTRATCION);
+
+if($forms_wizard->is_active())
+{
+    $html = $forms_wizard->ajax_modal_template_footer($button_title);
+}
+else
+{
+
 $html = '
   <div class="modal-footer">
     <div id="form-error-container"></div>    
       <div class="fa fa-spinner fa-spin primary-modal-action-loading"></div>
-      <button type="submit" class="btn btn-primary btn-primary-modal-action">' .  (strlen(CFG_REGISTRATION_BUTTON_TITLE) ? CFG_REGISTRATION_BUTTON_TITLE : TEXT_BUTTON_REGISTRATCION) . '</button>
+      <button type="submit" class="btn btn-primary btn-primary-modal-action">' .  $button_title . '</button>
     	<a href="' . url_for('users/login'). '" class="btn btn-default">' .  TEXT_BUTTON_BACK . '</a>
   </div>';
+}
 
 
 echo $html;
@@ -245,4 +279,16 @@ echo $html;
 
 </form> 
 
-<?php require(component_path('items/items_form.js')); ?>    
+<?php 
+	if(is_ext_installed())
+	{
+		$smart_input = new smart_input($current_entity_id);
+		echo $smart_input->render();
+	}
+?>
+
+<?php require(component_path('items/items_form.js')); ?>  
+
+<?php echo forms_fields_rules::hidden_form_fields($current_entity_id) ?>
+
+</div>

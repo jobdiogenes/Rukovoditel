@@ -49,12 +49,18 @@ switch($app_module_action)
                   
           switch($field['type'])
           {
+              case 'fieldtype_parent_item_id':
+                  $value = '';
+                  break;
             case 'fieldtype_created_by':
                 $value = $item['created_by'];
-              break;
+              break;              
             case 'fieldtype_date_added':
                 $value = $item['date_added'];                
               break;
+            case 'fieldtype_date_updated':
+                $value = $item['date_updated'];
+                break;
             case 'fieldtype_action':                
             case 'fieldtype_id':
                 $value = $item['id'];
@@ -80,7 +86,7 @@ switch($app_module_action)
           }
           else 
           {          
-	          if(in_array($field['type'],array('fieldtype_textarea_wysiwyg','fieldtype_textarea','fieldtype_barcode','fieldtype_qrcode','fieldtype_todo_list')))
+	          if(in_array($field['type'],array('fieldtype_user_photo','fieldtype_image','fieldtype_image_ajax','fieldtype_textarea_wysiwyg','fieldtype_textarea','fieldtype_barcode','fieldtype_qrcode','fieldtype_todo_list','fieldtype_text_pattern','fieldtype_text_pattern_static')))
 	          {
 	            $output = trim(fields_types::output($output_options));
 	          }
@@ -174,6 +180,12 @@ switch($app_module_action)
       //echo $html_comments;
       //exit();
       
+      /*
+      @font-face {
+          font-family: STXihei;
+          src: url(STXihei.ttf);
+      }
+      */
       
       $html = '
       <html>
@@ -198,6 +210,7 @@ switch($app_module_action)
                 font-style: normal;
                 font-weight: 400;
               }
+                
             </style>
         </head>        
         <body>
@@ -265,7 +278,7 @@ switch($app_module_action)
 	      
 	      $filename = str_replace(' ','_',trim($_POST['filename']));
 	                              
-	      require_once("includes/libs/dompdf-0.8.2/autoload.inc.php");    
+	      require_once(CFG_PATH_TO_DOMPDF);    
 	                              
 	      //echo $html;
 	      //exit();

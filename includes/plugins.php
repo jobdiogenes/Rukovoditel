@@ -4,23 +4,16 @@
   $app_plugin_menu = array();
   
 //include available plugins  
-  if(defined('AVAILABLE_PLUGINS') and isset($app_user))
-  {
+  if(defined('AVAILABLE_PLUGINS'))
+  {  	  	
     foreach(explode(',',AVAILABLE_PLUGINS) as $plugin)
     {            
-      //include language file   
-      if(isset($app_user))
-      {         
-        if(is_file($v = 'plugins/' . $plugin .'/languages/' . $app_user['language'] ))
-        {          
-          require($v);
-        }
-        elseif(is_file($v = 'plugins/' . $plugin .'/languages/' . CFG_APP_LANGUAGE ))
-        {
-          require($v);
-        }
+      //include language file                  
+      if(is_file($v = 'plugins/' . $plugin .'/languages/' . ((isset($app_user['language']) and strlen($app_user['language'])) ? $app_user['language'] : CFG_APP_LANGUAGE)))
+      {          
+        require($v);
       }
-      
+                   
       //include plugin
       if(is_file('plugins/' . $plugin .'/application_top.php'))
       {
@@ -28,14 +21,4 @@
       }      
     }
   }
-  elseif(defined('AVAILABLE_PLUGINS') and !isset($app_user))
-  {
-  	foreach(explode(',',AVAILABLE_PLUGINS) as $plugin)
-  	{
-  		if(is_file('plugins/' . $plugin .'/application_core.php'))
-  		{
-  			require('plugins/' . $plugin .'/application_core.php');
-  		}
-  	}
-  }	
   	

@@ -21,17 +21,17 @@ class fieldtype_input_numeric_comments
     
     $cfg[] = array('title'=>TEXT_PREFIX,'name'=>'prefix','type'=>'input','params'=>array('class'=>'form-control input-small'));
     $cfg[] = array('title'=>TEXT_SUFFIX,'name'=>'suffix','type'=>'input','params'=>array('class'=>'form-control input-small'));
+    $cfg[] = array('title'=>TEXT_DISPLAY_PREFIX_SUFFIX_IN_FORM, 'name'=>'display_prefix_suffix_in_form','type'=>'checkbox');
     
     return $cfg;
   }
     
   function render($field,$obj,$params = array())
-  {
-  		
+  {  		
+  	$cfg =  new fields_types_cfg($field['configuration']);
+  	
     if($params['form']=='comment')
-    {
-    	$cfg =  new fields_types_cfg($field['configuration']);
-    	
+    {    	    	
     	$value = '';
     	
     	//handle default value
@@ -40,11 +40,25 @@ class fieldtype_input_numeric_comments
     		$value = $cfg->get('default_value');
     	}
     	
-      return input_tag('fields[' . $field['id'] . ']',$value,array('class'=>'form-control input-small fieldtype_input_numeric field_' . $field['id'] . ($field['is_required']==1 ? ' required noSpace':'') . ' number'));
+    	if($cfg->get('display_prefix_suffix_in_form')==1 and (strlen($cfg->get('prefix')) or strlen($cfg->get('suffix'))))
+    	{
+    		return '
+    			<div class="input-group input-small">
+						' . (strlen($cfg->get('prefix')) ? '<span class="input-group-addon">' . $cfg->get('prefix') . '</span>':'')
+    							. input_tag('fields[' . $field['id'] . ']',$value,array('class'=>'form-control input-small fieldtype_input_numeric field_' . $field['id'] . ($field['is_required']==1 ? ' required noSpace':'') . ' number'))
+    							. (strlen($cfg->get('suffix')) ? '<span class="input-group-addon">' . $cfg->get('suffix') . '</span>':'') .
+    							'</div>
+    			';
+    	}
+    	else
+    	{
+    	
+      	return input_tag('fields[' . $field['id'] . ']',$value,array('class'=>'form-control input-small fieldtype_input_numeric field_' . $field['id'] . ($field['is_required']==1 ? ' required noSpace':'') . ' number'));
+    	}
     }
     else
     {
-      return '<p class="form-control-static">' . $obj['field_' . $field['id']] . '</p>' . input_hidden_tag('fields[' . $field['id'] . ']',$obj['field_' . $field['id']]);
+      return '<p class="form-control-static">' . $cfg->get('prefix') . $obj['field_' . $field['id']] . $cfg->get('suffix') . '</p>' . input_hidden_tag('fields[' . $field['id'] . ']',$obj['field_' . $field['id']]);
     }
   }
   

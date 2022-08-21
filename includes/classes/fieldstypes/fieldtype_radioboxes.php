@@ -13,6 +13,8 @@ class fieldtype_radioboxes
   {
     $cfg = array();
     
+    $cfg[] = array('title'=>TEXT_DISPLAY_AS, 'name'=>'display_as','type'=>'dropdown','choices'=>self::get_display_as_choices(),'default'=>'list-column-1','params'=>['class'=>'form-control input-medium']);
+    
     $cfg[] = array('title'=>TEXT_HIDE_FIELD_IF_EMPTY, 'name'=>'hide_field_if_empty','type'=>'checkbox','tooltip_icon'=>TEXT_HIDE_FIELD_IF_EMPTY_TIP);
     
     $cfg[] = array('title'=>TEXT_DISPLAY_CHOICES_VALUES, 'name'=>'display_choices_values','type'=>'checkbox','tooltip_icon'=>TEXT_DISPLAY_CHOICES_VALUES_TIP);
@@ -31,6 +33,19 @@ class fieldtype_radioboxes
     return $cfg;
   }  
   
+  static function get_display_as_choices()
+  {
+      $choices = [
+          'list-inline'=>TEXT_INLINE_LIST,
+          'list-column-1'=>TEXT_COLUMN . ' 1',
+          'list-column-2'=>TEXT_COLUMN . ' 2',
+          'list-column-3'=>TEXT_COLUMN . ' 3',
+          'list-column-4'=>TEXT_COLUMN . ' 4',
+      ];
+      
+      return $choices;
+  }
+  
   function render($field,$obj,$params = array())
   {         
     $cfg = new fields_types_cfg($field['configuration']);
@@ -40,18 +55,27 @@ class fieldtype_radioboxes
 //use global lists if exsit       
     if($cfg->get('use_global_list')>0)
     {
-      $choices = global_lists::get_choices($cfg->get('use_global_list'),false);
+      $choices = global_lists::get_choices($cfg->get('use_global_list'),false,'',$obj['field_' . $field['id']],true);
       $default_id = global_lists::get_choices_default_id($cfg->get('use_global_list'));
     }
     else
     {                         
-      $choices = fields_choices::get_choices($field['id'],false,'',$cfg->get('display_choices_values'));
+      $choices = fields_choices::get_choices($field['id'],false,'',$cfg->get('display_choices_values'),$obj['field_' . $field['id']],true);
       $default_id = fields_choices::get_default_id($field['id']);
     }
     
     $value = ($obj['field_' . $field['id']]>0 ? $obj['field_' . $field['id']] : $default_id); 
     
-    return '<div class="radio-list radio-list-' . $field['id'] . '">' . select_radioboxes_tag('fields[' . $field['id'] . ']',$choices,$value,$attributes) . '</div>';
+    
+    if($cfg->get('display_as')=='' or $cfg->get('display_as')=='list-column-1')
+    {
+        return '<div class="radio-list radio-list-' . $field['id'] . '">' . select_radioboxes_tag('fields[' . $field['id'] . ']',$choices,$value,$attributes) . '</div>';
+    }
+    else
+    {
+        $attributes['ul-class'] = $cfg->get('display_as');
+        return '<div class="radio-list radio-list-' . $field['id'] . ($attributes['ul-class']=='list-inline' ? ' form-control-static':'') . '">' . select_radioboxes_ul_tag('fields[' . $field['id'] . ']',$choices,$value,$attributes) . '</div>';
+    }
   }
   
   function process($options)
@@ -78,8 +102,10 @@ class fieldtype_radioboxes
   {
     $filters = $options['filters'];
     $sql_query = $options['sql_query'];
+    
+    $prefix = (strlen($options['prefix']) ? $options['prefix'] : 'e');
   
-    $sql_query[] = 'field_' . $filters['fields_id'] .  ($filters['filters_condition']=='include' ? ' in ': ' not in ') .'(' . $filters['filters_values'] . ') ';
+    $sql_query[] = $prefix . '.field_' . $filters['fields_id'] .  ($filters['filters_condition']=='include' ? ' in ': ' not in ') .'(' . $filters['filters_values'] . ') ';
     
     return $sql_query;
   }  

@@ -32,7 +32,7 @@ class users_notifications
 		global $app_user;
 		
 		//skip user with disabled notification
-		if(users_cfg::get_value_by_users_id($users_id, 'disable_internal_notification')==1 and users_cfg::get_value_by_users_id($users_id, 'disable_highlight_unread')==1) return false;
+		if(users_cfg::get_value_by_users_id($users_id, 'disable_internal_notification')==1) return false;
 		
 		//skip current user
 		if($app_user['id']==$users_id) return false;
@@ -82,9 +82,11 @@ class users_notifications
              setInterval(function(){
               user_notifications_report_render_dropdown()
              },60000);
+             
+            user_notifications_report_render_dropdown()
           });
 		
-          user_notifications_report_render_dropdown()
+          
 		
         </script>
       ';

@@ -24,12 +24,21 @@ switch($app_module_action)
     	break;
   case 'save':
   	  	
-    $sql_data = array('name' => db_prepare_input($_POST['name']),
-    									'icon' => db_prepare_input($_POST['icon']),
-    									'entities_list' => (isset($_POST['entities_list']) ? implode(',',$_POST['entities_list']) : ''),
-    									'reports_list' => (isset($_POST['reports_list']) ? implode(',',$_POST['reports_list']) : ''),
-                      'sort_order'=>db_prepare_input($_POST['sort_order']),                                              
-                      );
+    $sql_data = array(
+        'name' => db_prepare_input($_POST['name']),
+        'icon' => db_prepare_input($_POST['icon']),
+        'icon_color' => db_prepare_input($_POST['icon_color']),
+        'bg_color' => db_prepare_input($_POST['bg_color']),
+        'entities_list' => (isset($_POST['entities_list']) ? implode(',',$_POST['entities_list']) : ''),
+        'reports_list' => (isset($_POST['reports_list']) ? implode(',',$_POST['reports_list']) : ''),
+        'pages_list' => (isset($_POST['pages_list']) ? implode(',',$_POST['pages_list']) : ''),
+        'sort_order'=>db_prepare_input($_POST['sort_order']),
+        'type' => db_prepare_input($_POST['type']),
+        'url' => db_prepare_input($_POST['url']),
+        'users_groups' => (isset($_POST['users_groups']) ? implode(',',$_POST['users_groups']) : ''),
+        'assigned_to' => (isset($_POST['assigned_to']) ? implode(',',$_POST['assigned_to']) : ''),
+        'parent_id' => $_POST['parent_id'],
+    );
     
     
     if(isset($_GET['id']))
@@ -48,7 +57,9 @@ switch($app_module_action)
       {     
       	$obj = db_find('app_entities_menu',$_GET['id']);
                  
-        db_delete_row('app_entities_menu',$_GET['id']);        
+        db_delete_row('app_entities_menu',$_GET['id']); 
+        
+        db_query("update app_entities_menu set parent_id=0 where parent_id='" . _get::int('id') . "'");
                               
         $alerts->add(sprintf(TEXT_WARN_DELETE_SUCCESS,$obj['name']),'success');
                         
