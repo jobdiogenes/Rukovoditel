@@ -43,7 +43,7 @@ define('TEXT_USER_EMAIL','Email de usuário');
 define('TEXT_BUTTON_INSTALL','Instalar');	
 	
 define('TEXT_SUCCESS','Instalação completa');	
-define('TEXT_INSTALLATION_SUCCESS','Rukovoditel é instalado com sucesso.');	
+define('TEXT_INSTALLATION_SUCCESS','Rukovoditel foi instalado com sucesso.');	
 define('TEXT_BUTTON_LOGIN','Entrar');	
 	
 define('TEXT_TECHNICAL_SUPPORT','Departamento de Suporte Técnico');	
