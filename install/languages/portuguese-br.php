@@ -49,4 +49,4 @@ define('TEXT_BUTTON_LOGIN','Entrar');
 define('TEXT_TECHNICAL_SUPPORT','Departamento de Suporte Técnico');	
 define('TEXT_TECHNICAL_SUPPORT_INFO','Notificações internas, como recuperação de senha e outras serão enviadas do email de suporte técnico');	
 define('TEXT_EMAIL_NAME_FROM','Nome de');	
-define('TEXT_EMAIL_ADDRESS_FROM','Endereço de e -mail de');	
+define('TEXT_EMAIL_ADDRESS_FROM','Do Endereço de e-mail');	

@@ -10,9 +10,9 @@ CREATE TABLE IF NOT EXISTS `app_access_groups` (
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO app_access_groups VALUES
-('4','Manager','1','0','','2',''),
-('5','Developer','0','0','','1',''),
-('6','Client','0','0','','0','');
+('4','Gestor','1','0','','2',''),
+('5','Desenvolvedor','0','0','','1',''),
+('6','Cliente','0','0','','0','');
 
 CREATE TABLE IF NOT EXISTS `app_access_rules` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -569,7 +569,7 @@ INSERT INTO app_fields VALUES
 ('188','24','29','0','','fieldtype_id','','','0','','','0','','','0','','','0','1','1','0','0'),
 ('189','24','29','0','','fieldtype_date_added','','','0','','','0','','','0','','','0','1','4','0','0'),
 ('190','24','29','0','','fieldtype_created_by','','','0','','','0','','','0','','','0','1','5','0','0'),
-('191','24','29','0','','fieldtype_input','Name','','1','','','0','','','1','','{\"allow_search\":\"1\",\"width\":\"input-xlarge\"}','1','1','3','0','0'),
+('191','24','29','0','','fieldtype_input','Nome','','1','','','0','','','1','','{\"allow_search\":\"1\",\"width\":\"input-xlarge\"}','1','1','3','0','0'),
 ('192','24','29','0','','fieldtype_textarea_wysiwyg','Descrição','','0','','','0','','','0','','{\"allow_search\":\"1\"}','2','0','0','0','0'),
 ('193','24','29','0','','fieldtype_dropdown','Status','','0','','','0','','','0','','{\"width\":\"input-medium\"}','0','1','2','1','0'),
 ('194','23','28','0','','fieldtype_attachments','Anexos','','0','','','0','','','0','','','5','0','0','0','0'),
