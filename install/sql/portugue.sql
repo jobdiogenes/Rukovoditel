@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `app_access_groups` (
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO app_access_groups VALUES
-('4','Gestor','1','0','','2',''),
+('4','Gerente','1','0','','2',''),
 ('5','Desenvolvedor','0','0','','1',''),
 ('6','Cliente','0','0','','0','');
 
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS `app_backups` (
   `date_added` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_users_id` (`users_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `app_comments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -638,9 +638,9 @@ INSERT INTO app_fields_choices VALUES
 ('54','0','170','1','Alto','0','','2','','',''),
 ('55','0','170','1','Médio','1','','3','','',''),
 ('56','0','182','1','Suporte','0','','0','','',''),
-('57','0','183','1','Pede uma Alteração','0','','1','','',''),
-('58','0','183','1','Reporta uma falha','0','','2','','',''),
-('59','0','183','1','Faz uma Pergunta','0','','3','','',''),
+('57','0','183','1','Pedir uma Alteração','0','','1','','',''),
+('58','0','183','1','Reportar uma falha','0','','2','','',''),
+('59','0','183','1','Fazer uma Pergunta','0','','3','','',''),
 ('60','0','186','1','Novo','1','','0','','',''),
 ('61','0','186','1','Abrir','0','','2','','',''),
 ('62','0','186','1','Esperando No Cliente','0','','3','','',''),
@@ -981,7 +981,7 @@ CREATE TABLE IF NOT EXISTS `app_reports` (
   KEY `idx_reports_type` (`reports_type`),
   KEY `idx_in_dashboard` (`in_dashboard`),
   KEY `idx_in_dashboard_counter` (`in_dashboard_counter`)
-) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO app_reports VALUES
 ('59','0','21','0','default','','','','','0','0','0','0','','','','0','0','0','0','0',NULL,'0','0','','','','0','0','0','','0','','','',''),
@@ -998,7 +998,7 @@ CREATE TABLE IF NOT EXISTS `app_reports_filters` (
   PRIMARY KEY (`id`),
   KEY `idx_reports_id` (`reports_id`),
   KEY `idx_fields_id` (`fields_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO app_reports_filters VALUES
 ('68','59','157','37,38,39','include','1'),
@@ -1162,7 +1162,7 @@ CREATE TABLE IF NOT EXISTS `app_users_login_log` (
   `date_added` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_users_id` (`users_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `app_users_notifications` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
