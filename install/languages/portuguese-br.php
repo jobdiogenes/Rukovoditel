@@ -29,3 +29,24 @@ define('TEXT_BUTTON_INSTALL_DATABASE','Instale o banco de dados');
 define('TEXT_FIELD_IS_REQURED','Este campo é obrigatório!');
 define('TEXT_FIELD_IS_REQURED_EMAIL','Por favor insira um endereço de e-mail válido.');
 
+	
+define('TEXT_GENERAL_CONFIGURATION','Configuração geral');	
+define('TEXT_APP_NAME','Nome do aplicativo');	
+define('TEXT_APP_SHORT_NAME','Nome curto do aplicativo');	
+define('TEXT_TIME_ZONE','Fuso horário');	
+define('TEXT_ADMINISTRATOR','Administrador');	
+define('TEXT_USERNAME','Nome de usuário');	
+define('TEXT_PASSWORD','Senha');	
+define('TEXT_FIRST_NAME','Primeiro nome');	
+define('TEXT_LAST_NAME','Sobrenome');	
+define('TEXT_USER_EMAIL','Email de usuário');	
+define('TEXT_BUTTON_INSTALL','Instalar');	
+	
+define('TEXT_SUCCESS','Instalação completa');	
+define('TEXT_INSTALLATION_SUCCESS','Rukovoditel foi instalado com sucesso.');	
+define('TEXT_BUTTON_LOGIN','Entrar');	
+	
+define('TEXT_TECHNICAL_SUPPORT','Departamento de Suporte Técnico');	
+define('TEXT_TECHNICAL_SUPPORT_INFO','Notificações internas, como recuperação de senha e outras serão enviadas do email de suporte técnico');	
+define('TEXT_EMAIL_NAME_FROM','Nome de');	
+define('TEXT_EMAIL_ADDRESS_FROM','Do Endereço de e-mail');	
