@@ -23,7 +23,7 @@ $data = array(
 				array('centavo', 'centavos', 'centavos',	 1),
 				array('real'   ,'reais'   ,'reais'    ,0),
 				array('mil', 'milhares', 'milhares'     ,1),
-				array('millhão' ,'milhões','milhões' ,0),
+				array('milhão' ,'milhões','milhões' ,0),
 				array('bilhão', 'bilhões', 'bilhões',0),
 		)
 );
